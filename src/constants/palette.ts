@@ -1,0 +1,20 @@
+export const palette = {
+  background: "#F5F2E9",
+  surface: "#FFFDF7",
+  ink: "#28362D",
+  muted: "#62685F",
+  primary: "#345C42",
+  onPrimary: "#FFFFFF",
+  tint: "#E4EBDD",
+  border: "#D6DBCE",
+  danger: "#8C4140",
+  bright: "#796021",
+  calm: "#28685F",
+  neutral: "#606659",
+  sad: "#64627F",
+  fear: "#836133",
+  anger: "#974D3D",
+  shame: "#805B77",
+  overwhelmed: "#78554C",
+};
+export const spacing = { page: 22, gap: 16, radius: 20 };
