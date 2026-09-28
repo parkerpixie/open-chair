@@ -1,5 +1,6 @@
 import { openDatabaseAsync } from "expo-sqlite";
 import { connectionMethods, type Database } from "./database";
+// Keep the legacy filename to preserve existing installations’ local data.
 const databaseName = "undergrowth.db";
 const connectionPragmas =
   "PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;";

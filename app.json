@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Undergrowth",
-    "slug": "clearer-now",
+    "name": "Open Chair",
+    "slug": "open-chair",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "clearernow",
+    "scheme": "openchair",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"

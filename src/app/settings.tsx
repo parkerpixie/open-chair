@@ -17,14 +17,14 @@ export default function Settings() {
   const [message, setMessage] = useState("");
   return (
     <Screen>
-      <Heading>Undergrowth</Heading>
+      <Heading>Open Chair</Heading>
       <Copy muted>
         Working version 1.0 · A little closer to what’s underneath.
       </Copy>
       <Card>
         <Eyebrow>Privacy</Eyebrow>
         <Copy>
-          Your reflections stay on this device in this version of Undergrowth.
+          Your reflections stay on this device in this version of Open Chair.
         </Copy>
         <Copy muted>
           No accounts, analytics, ads, tracking, cloud sync, or remote AI.
@@ -36,7 +36,7 @@ export default function Settings() {
       <Card>
         <Eyebrow>About this space</Eyebrow>
         <Copy>
-          Undergrowth is a reflection and self-awareness tool. It does not
+          Open Chair is a reflection and self-awareness tool. It does not
           provide medical or mental health diagnosis or emergency support.
         </Copy>
         <Copy muted>

@@ -20,7 +20,7 @@ export async function migrate(db: Database) {
       "PRAGMA user_version",
     );
     if ((version?.user_version ?? 0) > 1)
-      throw new Error("This database needs a newer version of Undergrowth.");
+      throw new Error("This database needs a newer version of Open Chair.");
     if (!version?.user_version) {
       await tx.execAsync(schemaV1);
       await tx.execAsync("PRAGMA user_version = 1");

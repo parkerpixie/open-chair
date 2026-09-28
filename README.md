@@ -1,6 +1,6 @@
-# Undergrowth
+# Open Chair
 
-A private, local-first self-awareness app built with Expo SDK 57, React Native 0.86.3, React 19.2.3, and Expo Router. Feelings are information, not scores or diagnoses. The working display name is Undergrowth; the repository, Expo slug, and URL scheme retain their original identifiers.
+Open Chair is a private, local-first self-awareness app from Undergrowth, its parent brand, built with Expo SDK 57, React Native 0.86.3, React 19.2.3, and Expo Router. Feelings are information, not scores or diagnoses. The repository, package name, and Expo slug are `open-chair`; the URL scheme is `openchair`.
 
 ## V1
 
@@ -45,7 +45,7 @@ npx expo-doctor
 Starting Expo refreshes ignored `.expo/types/router.d.ts` after route changes. No native directories are committed or manually maintained. To check native JavaScript/Hermes bundles without a simulator:
 
 ```sh
-npx expo export --platform ios --platform android --output-dir /tmp/undergrowth-native-export
+npx expo export --platform ios --platform android --output-dir /tmp/open-chair-native-export
 ```
 
 Tests run in `America/Chicago` for DST boundaries. The repository suite exercises SQL, rollback, CRUD, referential integrity, migrations, demo isolation, and production guards. It adapts Node SQLite to the small database API surface; it does **not** test the Expo native bridge or the mobile UI. Node may print an experimental SQLite warning.

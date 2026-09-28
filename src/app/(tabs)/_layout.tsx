@@ -12,7 +12,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerTitle: "undergrowth",
+        headerTitle: "Open Chair",
         headerTitleStyle: { fontSize: 20, fontWeight: "600", letterSpacing: 1 },
         headerStyle: { backgroundColor: c.background },
         headerTintColor: c.ink,

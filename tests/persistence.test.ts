@@ -18,7 +18,7 @@ describe("isolated SQLite connections and disk persistence", () => {
   let handles: DatabaseSync[];
   beforeEach(() => {
     vi.stubGlobal("__DEV__", true);
-    directory = mkdtempSync(join(tmpdir(), "undergrowth-test-"));
+    directory = mkdtempSync(join(tmpdir(), "open-chair-test-"));
     handles = [];
     vi.mocked(openDatabaseAsync).mockImplementation(async () => {
       const sql = new DatabaseSync(join(directory, "test.db"), {

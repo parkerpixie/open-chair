@@ -40,9 +40,11 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
-## Undergrowth product foundation
+## Open Chair product foundation
 
-- Working product name: Undergrowth. Keep the `clearer-now` technical identifiers unless a technical change requires otherwise.
+- Product/app: Open Chair. Parent company/brand: Undergrowth.
+- Repository, package name, and Expo slug: `open-chair`. URL scheme: `openchair`.
+- Preserve the legacy SQLite filename unless an explicit data migration is planned.
 - A generalized self-awareness and reflection app, never recovery-only. Feelings are information, not diagnoses.
 - Local-first SQLite storage with versioned migrations and transactional related writes; Expo Router owns navigation.
 - Keep routes, UI, catalogs, repositories, and pure domain algorithms separate.

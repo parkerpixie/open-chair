@@ -48,7 +48,7 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
   if (!repository)
     return (
       <Screen>
-        <Heading>Undergrowth</Heading>
+        <Heading>Open Chair</Heading>
         <Loading />
       </Screen>
     );
