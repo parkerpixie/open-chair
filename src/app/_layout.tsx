@@ -18,6 +18,7 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="patterns" options={{ title: "Patterns" }} />
           <Stack.Screen name="settings" options={{ title: "Settings" }} />
           <Stack.Screen
             name="tool/[id]"

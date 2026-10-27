@@ -4,11 +4,12 @@ Open Chair is a private, local-first self-awareness app from Undergrowth, its pa
 
 ## V1
 
-Five tabs: **Today**, **Check In**, **Patterns**, **Tools**, and **Supports**. Settings lives in the header.
+Five tabs: **Today**, **Check In**, **My Days**, **Tools**, and **Supports**. Settings lives in the header. Patterns opens from My Days or Today, keeping the tab bar at five items.
 
 - Multi-select/search 96 feelings in eight families, optional intensity and context.
 - Today snapshot and multiple “Something worth keeping” reflections, with confirmed deletion.
-- Deterministic weekly/monthly observations and grouped history in 30-day pages.
+- My Days: a local monthly calendar, neutral activity markers, and a chronological selected-day timeline.
+- Deterministic weekly/monthly observations remain on the Patterns screen.
 - Seventeen original plain-language tool summaries, fourteen three-prompt guided flows, and optional 4/2/6 breathing for three cycles.
 - Generic supports with editing, favorites, deactivation, deletion, weekly schedules, online/phone actions, and dated takeaways. Scheduled supports never imply attendance.
 - Development-only synthetic history and confirmed clear actions.
@@ -50,7 +51,7 @@ npx expo export --platform ios --platform android --output-dir /tmp/open-chair-n
 
 Tests run in `America/Chicago` for DST boundaries. The repository suite exercises SQL, rollback, CRUD, referential integrity, migrations, demo isolation, and production guards. It adapts Node SQLite to the small database API surface; it does **not** test the Expo native bridge or the mobile UI. Node may print an experimental SQLite warning.
 
-In a development session, open Settings → **Seed demo history**, then Patterns. Eighteen synthetic days trigger weekly exact/family, monthly, reflection-theme, and repeated-tool observations. Re-seeding replaces only marked demo rows. **Clear demo data** preserves personal entries; **Clear all local data** requires confirmation. No production auto-seeding.
+In a development session, open Settings → **Seed demo history**, then My Days → View patterns. Eighteen synthetic days trigger weekly exact/family, monthly, reflection-theme, and repeated-tool observations. Re-seeding replaces only marked demo rows. **Clear demo data** preserves personal entries; **Clear all local data** requires confirmation. No production auto-seeding.
 
 ## Privacy and boundaries
 
@@ -62,7 +63,15 @@ This pass targets native iOS/Android. Browser SQLite requires a separate WASM/he
 
 1. Device smoke test in Expo Go: save/relaunch, all tabs, keyboard/safe areas, large text, screen reader, links/calls, background breathing, and destructive confirmations.
 2. Dedicated web SQLite support and dark tokens if those targets are needed.
-3. One-time supports, advanced recurrence, notification scheduling (the schema reserves a reminder offset, but no reminders are sent), and a full calendar.
+3. One-time supports, advanced recurrence, notification scheduling (the schema reserves a reminder offset, but no reminders are sent).
 4. Export/import, encrypted backups, accounts/sync, resource library, annual comparisons, onboarding, and production branding.
 
 Health integrations, AI analysis, subscriptions, Understory/workplace edition, and store submission are outside this foundation.
+
+## My Days
+
+`src/features/my-days/` owns the calendar helpers, calendar UI, pure daily-module adapters, and small per-type entry renderers. The repository’s `activityDates` query reads indexed date columns for the visible month; the timeline loads only the selected day through the existing history reader. Each request is scoped to the selected month/day, and focus/foreground refresh keeps saved activity current.
+
+The timeline preserves every check-in, optional intensity/context, saved reflection, completed tool session, and support takeaway, ordered oldest to newest by timestamp. Grouping always uses the stored local date, never UTC timestamp slices. Today has an outline and underlined number, selection has a fill, and a single neutral dot marks recorded activity. Scheduled supports are not attendance; only saved takeaways appear. Check-ins are read-only because no check-in editor exists. Tools and linked supports open their existing screens; takeaways from deleted supports remain readable.
+
+No migration, database rename, new dependency, or new data-writing path was needed. To add Health, Sleep, Body, Wins, or other daily modules later, add their persisted reader/data type, an adapter in `timeline.ts`, an entry renderer, and their indexed date source to `activityDates`. The calendar and selected-day shell stay shared. No future-module placeholder cards are rendered. Times display in the device’s current time zone; the originally stored local calendar date remains authoritative when traveling.

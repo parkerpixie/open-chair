@@ -42,7 +42,7 @@ export default function ToolDetail() {
       {saved ? (
         <Card tinted>
           <Heading small>Saved for you.</Heading>
-          <Copy>Your reflection is in Recent days.</Copy>
+          <Copy>Your reflection is in My Days.</Copy>
           <Button
             secondary
             label="Try again"

@@ -4,7 +4,7 @@ import { palette as c } from "../../constants/palette";
 const routes = [
   { name: "index", title: "Today", icon: "◉" },
   { name: "check-in", title: "Check In", icon: "+" },
-  { name: "patterns", title: "Patterns", icon: "≋" },
+  { name: "my-days", title: "My Days", icon: "▦" },
   { name: "tools", title: "Tools", icon: "◇" },
   { name: "supports", title: "Supports", icon: "◎" },
 ];

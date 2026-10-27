@@ -1,5 +1,5 @@
 import type { Database } from "./database";
-import { localDateKey, addDays } from "../lib/dates";
+import { localDateKey, addDays, compareDates } from "../lib/dates";
 import { requiredText, validUrl } from "../lib/validation";
 import { feelings, type Feeling } from "../features/check-in/catalog";
 import { toolById } from "../features/tools/catalog";
@@ -58,6 +58,27 @@ export class Repository {
         );
     });
     return key;
+  }
+  /** Calendar markers read only indexed date columns, never a month of journal text. */
+  async activityDates(from: string, to: string): Promise<string[]> {
+    if (compareDates(from, to) > 0)
+      throw new Error("Date range must be in calendar order.");
+    const rows = await this.db.getAllAsync<{ local_date: string }>(
+      `SELECT local_date FROM check_ins WHERE local_date BETWEEN ? AND ?
+       UNION SELECT local_date FROM reflections WHERE local_date BETWEEN ? AND ?
+       UNION SELECT local_date FROM tool_sessions WHERE local_date BETWEEN ? AND ?
+       UNION SELECT local_date FROM support_takeaways WHERE local_date BETWEEN ? AND ?
+       ORDER BY local_date`,
+      from,
+      to,
+      from,
+      to,
+      from,
+      to,
+      from,
+      to,
+    );
+    return rows.map((row) => row.local_date);
   }
   async history(from: string, to: string): Promise<History> {
     const checkIns = await this.db.getAllAsync<Omit<CheckIn, "feelings">>(

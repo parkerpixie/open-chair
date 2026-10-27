@@ -140,6 +140,80 @@ describe("SQLite repositories", () => {
     expect(clean.checkIns).toEqual([]);
     expect(clean.reflections[0].text).toBe("Personal entry");
   });
+  it("reads unique activity markers from all four persisted sources within inclusive month bounds", async () => {
+    await repository.saveCheckIn(
+      [feelings[0]],
+      null,
+      "First",
+      new Date(2026, 8, 1, 9),
+    );
+    await repository.saveCheckIn(
+      [feelings[1]],
+      null,
+      "Second",
+      new Date(2026, 8, 1, 11),
+    );
+    await repository.saveReflection("Kept", new Date(2026, 8, 2, 12));
+    await repository.saveSession(
+      "stop",
+      null,
+      ["One", "Two", "Three"],
+      new Date(2026, 8, 3, 12),
+    );
+    await db.runAsync(
+      "INSERT INTO support_takeaways VALUES (?,?,?,?,?,0)",
+      "takeaway",
+      null,
+      "2026-09-30",
+      "2026-10-01T04:59:00Z",
+      "Saved thought",
+    );
+    await repository.saveReflection("Before", new Date(2026, 7, 31, 12));
+    await repository.saveReflection("After", new Date(2026, 9, 1, 12));
+    expect(await repository.activityDates("2026-09-01", "2026-09-30")).toEqual([
+      "2026-09-01",
+      "2026-09-02",
+      "2026-09-03",
+      "2026-09-30",
+    ]);
+    const day = await repository.history("2026-09-01", "2026-09-01");
+    expect(day.checkIns).toHaveLength(2);
+    expect(day.checkIns.map((c) => c.note).sort()).toEqual(["First", "Second"]);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(1);
+  });
+  it("does not mark scheduled supports as activity and returns empty history for empty days", async () => {
+    await repository.saveSupport({
+      ...newSupport(),
+      name: "Scheduled support",
+      weekdays: [1, 2, 3],
+    });
+    expect(await repository.activityDates("2026-09-01", "2026-09-30")).toEqual(
+      [],
+    );
+    expect(await repository.history("2026-09-28", "2026-09-28")).toEqual({
+      checkIns: [],
+      reflections: [],
+      sessions: [],
+      takeaways: [],
+    });
+  });
+  it("updates markers after deleting the final activity and rejects invalid ranges", async () => {
+    await repository.saveReflection("A note", new Date(2026, 8, 28, 23, 59));
+    const h = await repository.history("2026-09-28", "2026-09-28");
+    expect(await repository.activityDates("2026-09-28", "2026-09-28")).toEqual([
+      "2026-09-28",
+    ]);
+    await repository.deleteReflection(h.reflections[0].id);
+    expect(await repository.activityDates("2026-09-28", "2026-09-28")).toEqual(
+      [],
+    );
+    await expect(
+      repository.activityDates("2026-09-30", "2026-09-01"),
+    ).rejects.toThrow();
+    await expect(
+      repository.activityDates("2026-02-30", "2026-03-01"),
+    ).rejects.toThrow();
+  });
   it("rejects developer utilities in production", async () => {
     vi.stubGlobal("__DEV__", false);
     await expect(repository.seed()).rejects.toThrow();
