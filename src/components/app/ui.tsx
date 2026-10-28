@@ -35,7 +35,7 @@ export function Screen({
         >
           <Image
             source={openChairBanner}
-            resizeMode="cover"
+            resizeMode="contain"
             accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
             style={s.brandBanner}
           />
@@ -210,7 +210,7 @@ export const s = StyleSheet.create({
   },
   brandBanner: {
     width: "100%",
-    aspectRatio: 4,
+    aspectRatio: 680 / 120,
     backgroundColor: c.background,
   },
   content: {
