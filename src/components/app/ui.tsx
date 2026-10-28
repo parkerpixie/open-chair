@@ -209,9 +209,8 @@ export const s = StyleSheet.create({
     paddingBottom: 36,
   },
   brandBanner: {
-    width: 340,
-    height: 60,
-    maxWidth: "100%",
+    width: "100%",
+    aspectRatio: 680 / 120,
     alignSelf: "center",
     backgroundColor: c.background,
   },
