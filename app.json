@@ -4,11 +4,16 @@
     "slug": "open-chair",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/OpenChairAppIcon.png",
     "scheme": "openchair",
     "userInterfaceStyle": "light",
+    "owner": "capyqueue-systems-for-humans",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/OpenChairAppIcon.png",
+      "bundleIdentifier": "com.undergrowth.openchair",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +33,10 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F5F2E9"
+          "backgroundColor": "#F8F4E3",
+          "image": "./assets/images/OpenChairOpenScreen.png",
+          "resizeMode": "contain",
+          "enableFullScreenImage_legacy": true
         }
       ],
       "expo-sqlite"
@@ -36,6 +44,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8d801d77-5ef9-45bc-aa16-51188735b27c"
+      }
     }
   }
 }
