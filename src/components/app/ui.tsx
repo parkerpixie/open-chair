@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactNode } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -14,6 +15,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { palette as c } from "../../constants/palette";
+
+const openChairBanner = require("../../../assets/images/OpenChairAppBanner.png");
+
 export function Screen({
   children,
   footer,
@@ -27,9 +31,15 @@ export function Screen({
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={s.content}
+          contentContainerStyle={s.scrollContent}
         >
-          {children}
+          <Image
+            source={openChairBanner}
+            resizeMode="cover"
+            accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
+            style={s.brandBanner}
+          />
+          <View style={s.content}>{children}</View>
         </ScrollView>
         {footer && (
           <View
@@ -195,9 +205,16 @@ export function confirmDelete(
 }
 export const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: c.background },
+  scrollContent: {
+    paddingBottom: 36,
+  },
+  brandBanner: {
+    width: "100%",
+    aspectRatio: 5,
+    backgroundColor: c.background,
+  },
   content: {
     padding: 22,
-    paddingBottom: 36,
     gap: 18,
     maxWidth: 700,
     width: "100%",
