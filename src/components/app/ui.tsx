@@ -11,17 +11,23 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
   type TextInputProps,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { palette as c } from "../../constants/palette";
 
 const openChairBanner = require("../../../assets/images/OpenChairAppBanner.png");
+const OPEN_CHAIR_BANNER_RATIO = 680 / 120;
 
 export function Screen({
   children,
   footer,
 }: PropsWithChildren<{ footer?: ReactNode }>) {
+  const { width: windowWidth } = useWindowDimensions();
+  const bannerWidth = windowWidth;
+  const bannerHeight = bannerWidth / OPEN_CHAIR_BANNER_RATIO;
+
   return (
     <SafeAreaView edges={["left", "right", "bottom"]} style={s.screen}>
       <KeyboardAvoidingView
@@ -37,7 +43,10 @@ export function Screen({
             source={openChairBanner}
             resizeMode="contain"
             accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
-            style={s.brandBanner}
+            style={[
+              s.brandBanner,
+              { width: bannerWidth, height: bannerHeight },
+            ]}
           />
           <View style={s.content}>{children}</View>
         </ScrollView>
@@ -209,8 +218,6 @@ export const s = StyleSheet.create({
     paddingBottom: 36,
   },
   brandBanner: {
-    width: "100%",
-    aspectRatio: 680 / 120,
     alignSelf: "center",
     backgroundColor: c.background,
   },
