@@ -1,8 +1,12 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Image } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DatabaseProvider } from "../db/provider";
 import { palette } from "../constants/palette";
+
+const headerBanner = require("../../assets/images/OpenChairAppBanner.png");
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
@@ -15,6 +19,14 @@ export default function RootLayout() {
             headerShadowVisible: false,
             contentStyle: { backgroundColor: palette.background },
             headerBackButtonDisplayMode: "minimal",
+            headerTitleAlign: "center",
+            headerTitle: () => (
+              <Image
+                source={headerBanner}
+                resizeMode="contain"
+                style={{ width: 240, height: 48 }}
+              />
+            ),
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

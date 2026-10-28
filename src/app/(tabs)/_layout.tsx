@@ -2,6 +2,8 @@ import { Tabs, router } from "expo-router";
 import { Image, Pressable, Text } from "react-native";
 import { palette as c } from "../../constants/palette";
 
+const headerBanner = require("../../../assets/images/OpenChairAppBanner.png");
+
 const routes = [
   {
     name: "index",
@@ -34,9 +36,15 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerTitle: "Open Chair",
-        headerTitleStyle: { fontSize: 20, fontWeight: "600", letterSpacing: 1 },
-        headerStyle: { backgroundColor: c.background },
+        headerTitle: "",
+        headerStyle: { backgroundColor: c.background, height: 72 },
+        headerBackground: () => (
+          <Image
+            source={headerBanner}
+            resizeMode="cover"
+            style={{ width: "100%", height: "100%" }}
+          />
+        ),
         headerTintColor: c.ink,
         headerShadowVisible: false,
         tabBarActiveTintColor: c.primary,
@@ -53,14 +61,16 @@ export default function TabLayout() {
             accessibilityLabel="Settings"
             onPress={() => router.push("/settings")}
             style={{
-              minWidth: 48,
+              minWidth: 44,
               minHeight: 44,
               justifyContent: "center",
               alignItems: "center",
-              marginRight: 10,
+              marginRight: 8,
+              borderRadius: 22,
+              backgroundColor: "rgba(244, 240, 232, 0.86)",
             }}
           >
-            <Text style={{ fontSize: 25, color: c.ink }}>⚙</Text>
+            <Text style={{ fontSize: 22, color: c.ink }}>⚙</Text>
           </Pressable>
         ),
       }}
