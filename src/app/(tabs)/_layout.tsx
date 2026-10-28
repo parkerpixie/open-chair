@@ -1,13 +1,35 @@
 import { Tabs, router } from "expo-router";
-import { Pressable, Text } from "react-native";
+import { Image, Pressable, Text } from "react-native";
 import { palette as c } from "../../constants/palette";
+
 const routes = [
-  { name: "index", title: "Today", icon: "◉" },
-  { name: "check-in", title: "Check In", icon: "+" },
-  { name: "my-days", title: "My Days", icon: "▦" },
-  { name: "tools", title: "Tools", icon: "◇" },
-  { name: "supports", title: "Supports", icon: "◎" },
+  {
+    name: "index",
+    title: "Today",
+    icon: require("../../../assets/images/open-chair-nav-today.png"),
+  },
+  {
+    name: "check-in",
+    title: "Check In",
+    icon: require("../../../assets/images/open-chair-nav-check-in.png"),
+  },
+  {
+    name: "my-days",
+    title: "My Days",
+    icon: require("../../../assets/images/open-chair-nav-my-days.png"),
+  },
+  {
+    name: "tools",
+    title: "Tools",
+    icon: require("../../../assets/images/open-chair-nav-tools.png"),
+  },
+  {
+    name: "supports",
+    title: "Supports",
+    icon: require("../../../assets/images/open-chair-nav-supports.png"),
+  },
 ];
+
 export default function TabLayout() {
   return (
     <Tabs
@@ -19,7 +41,11 @@ export default function TabLayout() {
         headerShadowVisible: false,
         tabBarActiveTintColor: c.primary,
         tabBarInactiveTintColor: c.muted,
-        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border },
+        tabBarStyle: {
+          backgroundColor: c.surface,
+          borderTopColor: c.border,
+          paddingTop: 4,
+        },
         tabBarLabelStyle: { fontSize: 11 },
         headerRight: () => (
           <Pressable
@@ -45,8 +71,16 @@ export default function TabLayout() {
           name={route.name}
           options={{
             title: route.title,
-            tabBarIcon: ({ color }) => (
-              <Text style={{ fontSize: 26, color }}>{route.icon}</Text>
+            tabBarIcon: ({ focused }) => (
+              <Image
+                source={route.icon}
+                resizeMode="contain"
+                style={{
+                  width: 32,
+                  height: 32,
+                  opacity: focused ? 1 : 0.58,
+                }}
+              />
             ),
           }}
         />
