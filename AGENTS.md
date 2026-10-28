@@ -39,3 +39,17 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Open Chair product foundation
+
+- Product/app: Open Chair. Parent company/brand: Undergrowth.
+- Repository, package name, and Expo slug: `open-chair`. URL scheme: `openchair`.
+- Preserve the legacy SQLite filename unless an explicit data migration is planned.
+- A generalized self-awareness and reflection app, never recovery-only. Feelings are information, not diagnoses.
+- Local-first SQLite storage with versioned migrations and transactional related writes; Expo Router owns navigation.
+- Keep routes, UI, catalogs, repositories, and pure domain algorithms separate.
+- Store local calendar keys alongside timestamps. Use local-noon calendar arithmetic for rolling windows; never slice UTC timestamps into journal dates.
+- Patterns are deterministic, local observations. No remote AI, fake AI insights, causal interpretations, telemetry, or cloud services.
+- No John-specific content, personal data, meeting credentials, or copied GrizzlyJohn artwork/cards. Reference concepts only.
+- Demo utilities are development-only and require explicit action. Never auto-seed.
+- Run lint, typecheck, and unit tests before declaring success; run Expo Doctor for dependency/configuration changes.
