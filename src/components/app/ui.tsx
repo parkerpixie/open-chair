@@ -210,7 +210,7 @@ export const s = StyleSheet.create({
   },
   brandBanner: {
     width: "100%",
-    aspectRatio: 5,
+    aspectRatio: 4,
     backgroundColor: c.background,
   },
   content: {
