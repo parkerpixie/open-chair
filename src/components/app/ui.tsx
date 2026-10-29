@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import {
   ActivityIndicator,
   Alert,
@@ -57,10 +58,14 @@ export function Screen({
               hitSlop={8}
               style={({ pressed }) => [
                 s.bannerSettings,
-                { opacity: pressed ? 0.55 : 1 },
+                { opacity: pressed ? 0.5 : 1 },
               ]}
             >
-              <Text style={s.bannerSettingsIcon}>⚙</Text>
+              <SymbolView
+                name={{ ios: "gearshape", android: "settings", web: "settings" }}
+                tintColor={c.ink}
+                size={20}
+              />
             </Pressable>
           </View>
           <View style={s.content}>{children}</View>
@@ -238,18 +243,13 @@ export const s = StyleSheet.create({
   },
   bannerSettings: {
     position: "absolute",
-    top: 4,
+    top: 2,
     right: 8,
-    minWidth: 44,
-    minHeight: 44,
-    borderRadius: 22,
+    width: 44,
+    height: 44,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(248, 244, 227, 0.82)",
-  },
-  bannerSettingsIcon: {
-    fontSize: 21,
-    color: c.ink,
+    backgroundColor: "transparent",
   },
   content: {
     padding: 22,
