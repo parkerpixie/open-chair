@@ -62,9 +62,13 @@ export function Screen({
               ]}
             >
               <SymbolView
-                name={{ ios: "gearshape", android: "settings", web: "settings" }}
+                name={{
+                  ios: "slider.horizontal.3",
+                  android: "tune",
+                  web: "tune",
+                }}
                 tintColor={c.ink}
-                size={20}
+                size={19}
               />
             </Pressable>
           </View>
