@@ -1,5 +1,5 @@
-import { Tabs, router } from "expo-router";
-import { Image, Pressable, Text } from "react-native";
+import { Tabs } from "expo-router";
+import { Image } from "react-native";
 import { palette as c } from "../../constants/palette";
 
 const routes = [
@@ -34,10 +34,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerTitle: "",
-        headerStyle: { backgroundColor: c.background },
-        headerTintColor: c.ink,
-        headerShadowVisible: false,
+        headerShown: false,
         tabBarActiveTintColor: c.primary,
         tabBarInactiveTintColor: c.muted,
         tabBarStyle: {
@@ -46,22 +43,6 @@ export default function TabLayout() {
           paddingTop: 4,
         },
         tabBarLabelStyle: { fontSize: 11 },
-        headerRight: () => (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-            onPress={() => router.push("/settings")}
-            style={{
-              minWidth: 44,
-              minHeight: 44,
-              justifyContent: "center",
-              alignItems: "center",
-              marginRight: 8,
-            }}
-          >
-            <Text style={{ fontSize: 22, color: c.ink }}>⚙</Text>
-          </Pressable>
-        ),
       }}
     >
       {routes.map((route) => (
