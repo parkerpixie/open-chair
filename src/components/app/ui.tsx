@@ -1,5 +1,4 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import { router } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
@@ -20,28 +19,6 @@ import { palette as c } from "../../constants/palette";
 
 const openChairBanner = require("../../../assets/images/OpenChairAppBanner.png");
 const OPEN_CHAIR_BANNER_RATIO = 680 / 120;
-
-function SettingsSlidersIcon() {
-  return (
-    <View style={s.slidersIcon} pointerEvents="none">
-      <View style={s.sliderRow}>
-        <View style={[s.sliderLine, { width: 8 }]} />
-        <View style={s.sliderKnob} />
-        <View style={[s.sliderLine, { width: 7 }]} />
-      </View>
-      <View style={s.sliderRow}>
-        <View style={[s.sliderLine, { width: 4 }]} />
-        <View style={s.sliderKnob} />
-        <View style={[s.sliderLine, { width: 11 }]} />
-      </View>
-      <View style={s.sliderRow}>
-        <View style={[s.sliderLine, { width: 11 }]} />
-        <View style={s.sliderKnob} />
-        <View style={[s.sliderLine, { width: 4 }]} />
-      </View>
-    </View>
-  );
-}
 
 export function Screen({
   children,
@@ -72,18 +49,6 @@ export function Screen({
                 { width: bannerWidth, height: bannerHeight },
               ]}
             />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-              onPress={() => router.push("/settings")}
-              hitSlop={8}
-              style={({ pressed }) => [
-                s.bannerSettings,
-                { opacity: pressed ? 0.5 : 1 },
-              ]}
-            >
-              <SettingsSlidersIcon />
-            </Pressable>
           </View>
           <View style={s.content}>{children}</View>
         </ScrollView>
@@ -257,39 +222,6 @@ export const s = StyleSheet.create({
   brandBanner: {
     alignSelf: "center",
     backgroundColor: c.background,
-  },
-  bannerSettings: {
-    position: "absolute",
-    top: 2,
-    right: 8,
-    width: 44,
-    height: 44,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent",
-  },
-  slidersIcon: {
-    width: 22,
-    height: 18,
-    justifyContent: "space-between",
-  },
-  sliderRow: {
-    height: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sliderLine: {
-    height: 1.5,
-    backgroundColor: c.ink,
-    borderRadius: 1,
-  },
-  sliderKnob: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: c.ink,
-    marginHorizontal: 1.5,
   },
   content: {
     padding: 22,
