@@ -1,4 +1,5 @@
 import type { PropsWithChildren, ReactNode } from "react";
+import { router } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
@@ -29,25 +30,39 @@ export function Screen({
   const bannerHeight = bannerWidth / OPEN_CHAIR_BANNER_RATIO;
 
   return (
-    <SafeAreaView edges={["left", "right", "bottom"]} style={s.screen}>
+    <SafeAreaView edges={["top", "left", "right", "bottom"]} style={s.screen}>
       <KeyboardAvoidingView
         style={s.screen}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={96}
+        keyboardVerticalOffset={48}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={s.scrollContent}
         >
-          <Image
-            source={openChairBanner}
-            resizeMode="contain"
-            accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
-            style={[
-              s.brandBanner,
-              { width: bannerWidth, height: bannerHeight },
-            ]}
-          />
+          <View style={{ width: bannerWidth, height: bannerHeight }}>
+            <Image
+              source={openChairBanner}
+              resizeMode="contain"
+              accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
+              style={[
+                s.brandBanner,
+                { width: bannerWidth, height: bannerHeight },
+              ]}
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+              onPress={() => router.push("/settings")}
+              hitSlop={8}
+              style={({ pressed }) => [
+                s.bannerSettings,
+                { opacity: pressed ? 0.55 : 1 },
+              ]}
+            >
+              <Text style={s.bannerSettingsIcon}>⚙</Text>
+            </Pressable>
+          </View>
           <View style={s.content}>{children}</View>
         </ScrollView>
         {footer && (
@@ -220,6 +235,21 @@ export const s = StyleSheet.create({
   brandBanner: {
     alignSelf: "center",
     backgroundColor: c.background,
+  },
+  bannerSettings: {
+    position: "absolute",
+    top: 4,
+    right: 8,
+    minWidth: 44,
+    minHeight: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(248, 244, 227, 0.82)",
+  },
+  bannerSettingsIcon: {
+    fontSize: 21,
+    color: c.ink,
   },
   content: {
     padding: 22,
