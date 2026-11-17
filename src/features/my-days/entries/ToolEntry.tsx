@@ -10,7 +10,15 @@ export function ToolEntry({ record }: { record: ToolSession }) {
     <>
       <Copy>{tool?.title ?? record.tool_id}</Copy>
       {responses ? (
-        responses.map((response, index) => <Copy key={index}>{response}</Copy>)
+        responses.map((response, index) => (
+          <Copy key={index}>
+            {record.tool_id === "rain"
+              ? (tool?.prompts?.[index]?.split(":")[0] ?? "Step " + (index + 1)) +
+                ": " +
+                (response || "Practiced without writing")
+              : response}
+          </Copy>
+        ))
       ) : (
         <Copy muted>The saved responses could not be displayed.</Copy>
       )}

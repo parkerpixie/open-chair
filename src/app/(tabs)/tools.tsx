@@ -26,6 +26,20 @@ export default function ToolsScreen() {
         You don’t have to change a feeling to understand it. These optional
         practices draw on DBT and everyday reflection.
       </Copy>
+      {!query.trim() && (
+        <Card tinted>
+          <Eyebrow>RAIN • Guided mindfulness</Eyebrow>
+          <Heading small>Meet this moment with compassion.</Heading>
+          <Copy>Recognize · Allow · Investigate · Nurture</Copy>
+          <Copy muted>Four gentle steps. Write if it helps, or practice privately.</Copy>
+          <Button
+            label="Practice RAIN"
+            onPress={() =>
+              router.push({ pathname: "/tool/[id]", params: { id: "rain" } })
+            }
+          />
+        </Card>
+      )}
       <Breathing />
       <Field
         label="Find a tool"
