@@ -139,9 +139,17 @@ export class Repository {
     date = new Date(),
     demo = 0,
   ) {
-    if (!toolById(toolId)?.prompts || responses.length !== 3)
+    const selectedTool = toolById(toolId);
+    if (!selectedTool?.prompts || responses.length !== selectedTool.prompts.length)
       throw new Error("This guided tool is unavailable.");
-    const clean = responses.map((text) => requiredText(text, 1000));
+    const clean = responses.map((text) => {
+      if (selectedTool.optionalResponses) {
+        if (typeof text !== "string" || text.length > 1000)
+          throw new Error("Keep each reflection within 1000 characters.");
+        return text.trim();
+      }
+      return requiredText(text, 1000);
+    });
     await this.db.runAsync(
       "INSERT INTO tool_sessions VALUES (?,?,?,?,?,?,?)",
       id(),
