@@ -4,7 +4,8 @@ export interface Tool {
   category: string;
   when: string;
   explanation: string;
-  prompts?: readonly [string, string, string];
+  prompts?: readonly string[];
+  optionalResponses?: boolean;
 }
 export const tools: Tool[] = [
   {
@@ -57,6 +58,21 @@ export const tools: Tool[] = [
       "What can wait while you take a pause?",
       "What do you notice inside and around you?",
       "What next action fits what matters to you?",
+    ],
+  },
+  {
+    id: "rain",
+    title: "RAIN: Radical Compassion",
+    category: "Pause / mindfulness",
+    when: "When a feeling is hard to carry and you want to meet it with care.",
+    explanation:
+      "RAIN is a four-step mindfulness and self-compassion practice: Recognize, Allow, Investigate, and Nurture. You can move gently, skip writing, or stop at any time. Allowing a feeling does not mean approving harm or ignoring a boundary.",
+    optionalResponses: true,
+    prompts: [
+      "Recognize: What am I noticing right now? Name a feeling, thought, or body sensation.",
+      "Allow: Can I make a little room for this experience without having to fix it?",
+      "Investigate: What might this feeling be asking for? If looking closer feels too intense, it is okay to skip.",
+      "Nurture: What would I say to someone I care about, and what kindness can I offer myself?",
     ],
   },
   {
