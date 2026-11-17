@@ -108,6 +108,30 @@ describe("SQLite repositories", () => {
       }),
     ).rejects.toThrow();
   });
+  it("saves four optional RAIN reflections without changing existing three-step tools", async () => {
+    await repository.saveSession("rain", null, [
+      "A heavy feeling",
+      "",
+      "I need some space",
+      "I can offer myself kindness",
+    ]);
+    const history = await repository.history(today, today);
+    const rain = history.sessions.find((session) => session.tool_id === "rain");
+    expect(rain).toBeDefined();
+    expect(JSON.parse(rain!.responses)).toEqual([
+      "A heavy feeling",
+      "",
+      "I need some space",
+      "I can offer myself kindness",
+    ]);
+    await expect(
+      repository.saveSession("rain", null, ["Only one step"]),
+    ).rejects.toThrow("unavailable");
+    await expect(
+      repository.saveSession("stop", null, ["", "Observe", "Proceed"]),
+    ).rejects.toThrow();
+    expect((await repository.history(today, today)).sessions).toHaveLength(1);
+  });
   it("persists and deletes reflections, and links completed tools", async () => {
     const id = await repository.saveCheckIn([feelings[0]], null, "");
     await repository.saveReflection("Something to keep");
