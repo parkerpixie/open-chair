@@ -6,6 +6,7 @@ import { toolById } from "../features/tools/catalog";
 import type {
   CheckIn,
   History,
+  LibraryItem,
   Reflection,
   Support,
   Takeaway,
@@ -212,6 +213,42 @@ export class Repository {
       requiredText(text, 1000),
     );
   }
+
+  /** Private on-device collection. No external URLs are fetched by the repository. */
+  async libraryItems(): Promise<LibraryItem[]> {
+    return this.db.getAllAsync<LibraryItem>(
+      "SELECT * FROM library_items ORDER BY favorite DESC, updated_at DESC"
+    );
+  }
+
+  async saveLibraryItem(item: LibraryItem): Promise<void> {
+    const title = requiredText(item.title, 180);
+    const url = item.url.trim();
+    const artwork = item.artwork_url.trim();
+    if (url && !validUrl(url)) throw new Error("Enter a full https:// link for this item.");
+    if (artwork && !validUrl(artwork)) throw new Error("Enter a full https:// artwork link.");
+    if (item.creator.length > 180 || item.summary.length > 1000 || item.notes.length > 2000)
+      throw new Error("One of the descriptions is too long.");
+    if (!["podcast", "reflection", "article", "video", "other"].includes(item.kind))
+      throw new Error("Choose a supported item type.");
+    await this.db.runAsync(
+      `INSERT INTO library_items
+        (id,kind,title,url,creator,summary,artwork_url,notes,favorite,created_at,updated_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(id) DO UPDATE SET
+        kind=excluded.kind,title=excluded.title,url=excluded.url,creator=excluded.creator,
+        summary=excluded.summary,artwork_url=excluded.artwork_url,notes=excluded.notes,
+        favorite=excluded.favorite,updated_at=excluded.updated_at`,
+      item.id, item.kind, title, url, item.creator.trim(), item.summary.trim(),
+      artwork, item.notes.trim(), item.favorite ? 1 : 0,
+      item.created_at, new Date().toISOString()
+    );
+  }
+
+  async deleteLibraryItem(key: string): Promise<void> {
+    await this.db.runAsync("DELETE FROM library_items WHERE id=?", key);
+  }
+
   async clear(demoOnly = false) {
     if (!__DEV__) throw new Error("Development action unavailable.");
     await this.db.transaction(async (tx) => {
@@ -280,5 +317,14 @@ export function newSupport(): Support {
     reminder_offset: null,
     created_at: now,
     updated_at: now,
+  };
+}
+
+export function newLibraryItem(): LibraryItem {
+  const now = new Date().toISOString();
+  return {
+    id: id(), kind: "podcast", title: "", url: "", creator: "",
+    summary: "", artwork_url: "", notes: "", favorite: 0,
+    created_at: now, updated_at: now,
   };
 }
