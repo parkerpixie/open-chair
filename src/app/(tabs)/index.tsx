@@ -56,7 +56,7 @@ const shortcuts: Array<{
   { title: "My Toolbox", description: "Skills for this moment", glyph: "✳", action: () => router.navigate("/tools") },
   { title: "My Supports", description: "People and meetings", glyph: "♧", action: () => router.navigate("/supports") },
   { title: "Explore patterns", description: "What you may notice", glyph: "◈", action: () => router.push("/patterns") },
-  { title: "A little more", description: "About Open Chair", glyph: "☼", action: () => router.push("/settings") },
+  { title: "My Library", description: "Podcasts and reflections", glyph: "♫", action: () => router.push("/library") },
 ];
 
 function Shortcut({ title, description, glyph, action }: (typeof shortcuts)[number]) {
