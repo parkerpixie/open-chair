@@ -1,16 +1,22 @@
 {
   "expo": {
-    "name": "clearer-now",
-    "slug": "clearer-now",
+    "name": "Open Chair",
+    "slug": "open-chair",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "clearernow",
-    "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/OpenChairAppIcon.png",
+    "scheme": "openchair",
+    "userInterfaceStyle": "light",
+    "owner": "capyqueue-systems-for-humans",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/OpenChairAppIcon.png",
+      "bundleIdentifier": "com.undergrowth.openchair",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.undergrowth.openchair",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -28,15 +34,22 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F8F4E3",
+          "image": "./assets/images/OpenChairOpenScreen.png",
+          "resizeMode": "contain",
+          "enableFullScreenImage_legacy": true
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8d801d77-5ef9-45bc-aa16-51188735b27c"
+      }
     }
   }
 }
