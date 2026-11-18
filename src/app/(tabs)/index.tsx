@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { palette as c } from "../../constants/palette";
 import {
-  Button, Copy, ErrorMessage, Field, Loading, Screen,
+  Button, ErrorMessage, Field, Loading, Screen,
 } from "../../components/app/ui";
 import { useRepository } from "../../db/provider";
 import { useAction, useResource } from "../../lib/hooks";
@@ -48,9 +48,9 @@ const reflections = [
   },
 ];
 
-const shortcuts: Array<{
+const shortcuts: {
   title: string; description: string; glyph: string; action: () => void;
-}> = [
+}[] = [
   { title: "How I feel", description: "Name what's here", glyph: "♡", action: () => router.navigate("/check-in") },
   { title: "My Days", description: "Your story so far", glyph: "▦", action: () => router.navigate("/my-days") },
   { title: "My Toolbox", description: "Skills for this moment", glyph: "✳", action: () => router.navigate("/tools") },
@@ -104,7 +104,7 @@ export default function TodayScreen() {
     <Screen>
       <View style={styles.intro}>
         <Text style={styles.eyebrow}>{displayDate(today).toUpperCase()}</Text>
-        <Text style={styles.greeting}>{greeting}.{"\n"}There's room for you here.</Text>
+        <Text style={styles.greeting}>{greeting}.{"\n"}There&apos;s room for you here.</Text>
         <Text style={styles.subtle}>Come as you are. Stay for what helps.</Text>
       </View>
 
@@ -129,7 +129,7 @@ export default function TodayScreen() {
         ) : (
           <>
             <Text style={styles.meetingName}>Find your people.</Text>
-            <Text style={styles.meetingInfo}>Add your regular meetings, people, or places of support to see what's coming up.</Text>
+            <Text style={styles.meetingInfo}>Add your regular meetings, people, or places of support to see what&apos;s coming up.</Text>
             <Button label="Add a meeting or support" secondary onPress={() => router.push("/support/new")} />
           </>
         )}
