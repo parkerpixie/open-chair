@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,14 +11,10 @@ import {
   Text,
   TextInput,
   View,
-  useWindowDimensions,
   type TextInputProps,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { palette as c } from "../../constants/palette";
-
-const openChairBanner = require("../../../assets/images/OpenChairAppBanner.png");
-const OPEN_CHAIR_BANNER_RATIO = 680 / 120;
 
 function SettingsSlidersIcon() {
   return (
@@ -47,10 +42,6 @@ export function Screen({
   children,
   footer,
 }: PropsWithChildren<{ footer?: ReactNode }>) {
-  const { width: windowWidth } = useWindowDimensions();
-  const bannerWidth = windowWidth;
-  const bannerHeight = bannerWidth / OPEN_CHAIR_BANNER_RATIO;
-
   return (
     <SafeAreaView edges={["top", "left", "right", "bottom"]} style={s.screen}>
       <KeyboardAvoidingView
@@ -62,25 +53,25 @@ export function Screen({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={s.scrollContent}
         >
-          <View style={{ width: bannerWidth, height: bannerHeight }}>
-            <Image
-              source={openChairBanner}
-              resizeMode="contain"
-              accessibilityLabel="Open Chair. Reflect. Adjust. Grow."
-              style={[
-                s.brandBanner,
-                { width: bannerWidth, height: bannerHeight },
-              ]}
-            />
+          <View style={s.brandHeader}>
+            <Pressable
+              onPress={() => router.navigate("/")}
+              accessibilityRole="button"
+              accessibilityLabel="Open Chair, go to Today"
+              style={({ pressed }) => [s.brandIdentity, pressed && { opacity: 0.7 }]}
+            >
+              <View style={s.brandSymbol}><Text style={s.brandSymbolText}>✳</Text></View>
+              <View style={s.brandText}>
+                <Text style={s.brandTitle}>Open Chair</Text>
+                <Text style={s.brandTagline}>A kinder place to be you</Text>
+              </View>
+            </Pressable>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Settings"
+              accessibilityLabel="Open settings"
               onPress={() => router.push("/settings")}
               hitSlop={8}
-              style={({ pressed }) => [
-                s.bannerSettings,
-                { opacity: pressed ? 0.5 : 1 },
-              ]}
+              style={({ pressed }) => [s.brandSettings, pressed && { opacity: 0.65 }]}
             >
               <SettingsSlidersIcon />
             </Pressable>
@@ -254,19 +245,29 @@ export const s = StyleSheet.create({
   scrollContent: {
     paddingBottom: 36,
   },
-  brandBanner: {
-    alignSelf: "center",
+  brandHeader: {
+    minHeight: 82,
+    paddingHorizontal: 22,
+    paddingVertical: 12,
     backgroundColor: c.background,
-  },
-  bannerSettings: {
-    position: "absolute",
-    top: 2,
-    right: 8,
-    width: 44,
-    height: 44,
-    justifyContent: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: c.border,
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "transparent",
+    justifyContent: "space-between",
+  },
+  brandIdentity: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 12 },
+  brandSymbol: {
+    width: 45, height: 45, borderRadius: 15, backgroundColor: c.tint,
+    justifyContent: "center", alignItems: "center",
+  },
+  brandSymbolText: { color: c.primary, fontSize: 30, fontWeight: "600" },
+  brandText: { flexShrink: 1 },
+  brandTitle: { color: c.ink, fontSize: 24, lineHeight: 28, fontWeight: "700", letterSpacing: -0.6 },
+  brandTagline: { color: c.muted, fontSize: 11, lineHeight: 16 },
+  brandSettings: {
+    width: 46, height: 46, borderRadius: 15, borderWidth: 1, borderColor: c.border,
+    justifyContent: "center", alignItems: "center", backgroundColor: c.surface,
   },
   slidersIcon: {
     width: 22,
