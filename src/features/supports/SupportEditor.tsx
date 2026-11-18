@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Image, Text, View } from "react-native";
+import { findPodcastCovers, type PodcastMatch } from "./podcastArt";
 import { router } from "expo-router";
 import {
   Button,
@@ -40,6 +42,10 @@ export function SupportEditor({
   const [support, setSupport] = useState(initial);
   const [displayTime, setDisplayTime] = useState(() => toDisplayTime(initial.time).time);
   const [period, setPeriod] = useState<"AM" | "PM">(() => toDisplayTime(initial.time).period);
+  const [lookup, setLookup] = useState("");
+  const [matches, setMatches] = useState<PodcastMatch[]>([]);
+  const [looking, setLooking] = useState(false);
+  const [lookupError, setLookupError] = useState("");
   const repository = useRepository();
   const action = useAction();
   function update<K extends keyof Support>(key: K, value: Support[K]) {
@@ -57,6 +63,7 @@ export function SupportEditor({
       <Row>
         {[
           "Meeting",
+          "Podcast",
           "Therapy",
           "Support group",
           "Appointment",
@@ -73,8 +80,58 @@ export function SupportEditor({
           />
         ))}
       </Row>
-      <Heading small>How you connect</Heading>
-      <Row>
+      {support.type === "Podcast" && (
+        <Card>
+          <Heading small>Listen to your podcast</Heading>
+          <Copy muted>Add your Amazon Music, Spotify, Apple Podcasts or other podcast link. The button will open the actual link you save.</Copy>
+          <Row>
+            {["Amazon Music", "Spotify", "Apple Podcasts", "Other"].map(source => (
+              <Chip key={source} label={source} selected={support.platform === source} onPress={() => update("platform", source)} />
+            ))}
+          </Row>
+          <Field label="Podcast listening URL" autoCapitalize="none" keyboardType="url"
+            maxLength={2000} placeholder="https://music.amazon.com/podcasts/..."
+            value={support.url} onChangeText={v => update("url", v)} />
+          <Field label="Find cover art using a podcast name or Spotify / Apple URL"
+            autoCapitalize="none" value={lookup} onChangeText={setLookup}
+            placeholder="The Mel Robbins Podcast" />
+          <Button secondary label={looking ? "Searching..." : "Find podcast artwork"}
+            disabled={looking || (!lookup.trim() && !support.name.trim())}
+            onPress={() => {
+              setLooking(true);
+              setLookupError("");
+              setMatches([]);
+              void findPodcastCovers(lookup || support.url, support.name).then(found => {
+                setMatches(found);
+                if (!found.length) setLookupError("No matching cover found. You can paste an artwork URL below.");
+              }).catch(e => setLookupError(e instanceof Error ? e.message : "Artwork lookup failed. You can still save this podcast."))
+                .finally(() => setLooking(false));
+            }} />
+          {!!lookupError && <Copy muted>{lookupError}</Copy>}
+          {matches.map((match, i) => (
+            <Card key={i}>
+              <Row>
+                <Image source={{ uri: match.artwork }} style={{ width: 60, height: 60, borderRadius: 10 }} />
+                <View style={{ flex: 1 }}>
+                  <Text>{match.title}</Text>
+                  <Text>{match.creator} · {match.source}</Text>
+                  <Button secondary label="Use this cover" onPress={() => {
+                    setSupport(current => ({...current, name: current.name.trim() || match.title, artwork_url: match.artwork }));
+                    setMatches([]);
+                  }} />
+                </View>
+              </Row>
+            </Card>
+          ))}
+          <Field label="Cover image URL (optional)" autoCapitalize="none" keyboardType="url"
+            value={support.artwork_url} onChangeText={v => update("artwork_url", v)}
+            placeholder="https://.../cover.jpg" />
+          {!!support.artwork_url && <Image source={{ uri: support.artwork_url }}
+            style={{ width: 110, height: 110, borderRadius: 14 }} resizeMode="cover" />}
+        </Card>
+      )}
+      {support.type !== "Podcast" && <Heading small>How you connect</Heading>}
+      {support.type !== "Podcast" && <Row>
         {["In person", "Online", "Phone", "Flexible / other"].map((mode) => (
           <Chip
             key={mode}
@@ -83,8 +140,8 @@ export function SupportEditor({
             onPress={() => update("mode", mode)}
           />
         ))}
-      </Row>
-      {support.mode === "Online" && (
+      </Row>}
+      {support.type !== "Podcast" && support.mode === "Online" && (
         <>
           <Field
             label="Meeting link"
@@ -109,7 +166,7 @@ export function SupportEditor({
           />
         </>
       )}
-      {support.mode === "In person" && (
+      {support.type !== "Podcast" && support.mode === "In person" && (
         <Field
           label="Place or address"
           maxLength={500}
@@ -117,7 +174,7 @@ export function SupportEditor({
           onChangeText={(v) => update("location", v)}
         />
       )}
-      {support.mode === "Phone" && (
+      {support.type !== "Podcast" && support.mode === "Phone" && (
         <Field
           label="Phone number"
           maxLength={40}
@@ -126,7 +183,7 @@ export function SupportEditor({
           onChangeText={(v) => update("phone", v)}
         />
       )}
-      <Card>
+      {support.type !== "Podcast" && <Card>
         <Heading small>Weekly rhythm</Heading>
         <Copy muted>
           Choose any days, or leave them blank for an unscheduled support. Times
@@ -165,7 +222,7 @@ export function SupportEditor({
             </Row>
           </>
         )}
-      </Card>
+      </Card>}
       <Field
         label="Notes (optional)"
         multiline
@@ -195,7 +252,7 @@ export function SupportEditor({
             const savedTime = support.weekdays.length ? toSavedTime(displayTime, period) : support.time;
             if (support.weekdays.length && !savedTime)
               throw new Error("Enter a time like 7:30, then choose AM or PM.");
-            await repository.saveSupport({ ...support, time: savedTime || support.time });
+            await repository.saveSupport({ ...support, weekdays: support.type === "Podcast" ? [] : support.weekdays, time: savedTime || support.time });
             if (onSaved) onSaved();
             else
               router.replace({
