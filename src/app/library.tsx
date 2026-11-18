@@ -87,9 +87,24 @@ export default function LibraryScreen() {
     setSearching(true);
     setResults([]);
     try {
-      const found = await findPodcast(lookup);
-      if (found.length === 0) setSearchError("No matching show found. Try a different show name or enter the artwork manually.");
-      setResults(found);
+      const query = lookup.trim();
+      if (/^https:\/\/(?:open\.)?spotify\.com\/(?:show|episode)\//i.test(query)) {
+        const response = await fetch("https://open.spotify.com/oembed?url=" + encodeURIComponent(query));
+        if (!response.ok) throw new Error("Spotify couldn't retrieve this link. You can still add the show manually.");
+        const meta = (await response.json()) as { title?: string; thumbnail_url?: string; author_name?: string };
+        setItem(current => current ? {
+          ...current,
+          title: meta.title || current.title,
+          artwork_url: meta.thumbnail_url || current.artwork_url,
+          creator: meta.author_name || current.creator,
+          url: query,
+        } : current);
+        setSearchError("Spotify artwork and title added. Review the details below, then save.");
+      } else {
+        const found = await findPodcast(query);
+        if (found.length === 0) setSearchError("No matching show found. Try a different show name or enter the artwork manually.");
+        setResults(found);
+      }
     } catch (error) {
       setSearchError(error instanceof Error ? error.message : "Couldn't look up this show. You can still add it manually.");
     } finally {
@@ -128,10 +143,10 @@ export default function LibraryScreen() {
           {item.kind === "podcast" && (
             <Card>
               <Heading small>Find the cover art</Heading>
-              <Copy muted>Search by podcast name, or paste an Apple Podcasts show link. Choose the correct match to fill in the title, creator, and artwork.</Copy>
+              <Copy muted>Paste an Apple Podcasts or Spotify link for artwork and details, or search by podcast name. Check the result before saving.</Copy>
               <Field label="Search Apple Podcasts" value={lookup} onChangeText={setLookup}
-                autoCapitalize="none" placeholder="Podcast title or Apple Podcasts URL" />
-              <Button label={searching ? "Searching..." : "Find podcast artwork"} disabled={searching || !lookup.trim()} onPress={() => void search()} />
+                autoCapitalize="none" placeholder="Podcast title, Spotify or Apple link" />
+              <Button label={searching ? "Searching..." : "Find artwork & details"} disabled={searching || !lookup.trim()} onPress={() => void search()} />
               {!!searchError && <Copy muted>{searchError}</Copy>}
               {results.map((show, i) => (
                 <Pressable key={i} accessibilityRole="button" onPress={() => chooseShow(show)} style={styles.result}>
@@ -143,7 +158,7 @@ export default function LibraryScreen() {
                   </View>
                 </Pressable>
               ))}
-              <Copy muted>Spotify and other listening links are welcome. Search by show name above, then paste your preferred platform&apos;s URL below.</Copy>
+              <Copy muted>Spotify and Apple Podcasts links can import artwork. For other podcast platforms, search by show name, then keep your preferred link below.</Copy>
             </Card>
           )}
           <Card>
