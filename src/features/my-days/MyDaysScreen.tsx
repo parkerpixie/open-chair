@@ -123,6 +123,7 @@ export function MyDaysScreen() {
       />
       {/* Key each request to its calendar date so an older response or error cannot appear under a new heading. */}
       <SelectedDay key={selected} date={selected} />
+      <Button secondary label="☾ Open my sleep journal" onPress={() => router.push("/sleep")} />
       <Button
         secondary
         label="View patterns"
