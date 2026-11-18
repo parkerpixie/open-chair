@@ -46,3 +46,18 @@ export interface History {
   sessions: ToolSession[];
   takeaways: Takeaway[];
 }
+
+export type LibraryKind = "podcast" | "reflection" | "article" | "video" | "other";
+export interface LibraryItem {
+  id: string;
+  kind: LibraryKind;
+  title: string;
+  url: string;
+  creator: string;
+  summary: string;
+  artwork_url: string;
+  notes: string;
+  favorite: number;
+  created_at: string;
+  updated_at: string;
+}
