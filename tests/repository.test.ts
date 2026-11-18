@@ -280,6 +280,37 @@ describe("SQLite repositories", () => {
     expect((await repository.supports())[0].artwork_url).toBe("https://example.com/new-cover.jpg");
     await expect(repository.saveSupport({ ...podcast, url: "javascript:bad" })).rejects.toThrow();
   });
+
+  it("records John's split night with awake gaps, preserves existing journal and completes with a restfulness rating", async () => {
+    const date = "2026-11-09";
+    await repository.saveReflection("Existing journal entry", new Date(2026,10,9,11));
+    await repository.startSleepNight(date);
+    const open = await repository.currentSleepNight();
+    expect(open?.night_date).toBe(date);
+    await repository.addSleepStretch(open!.id, "21:00", "02:00", true, "Woke during the night");
+    await repository.addSleepStretch(open!.id, "03:00", "07:00");
+    const before = await repository.currentSleepNight();
+    expect(before?.stretches).toHaveLength(2);
+    expect((before!.stretches[1].started_at)).toBeTruthy();
+    await repository.finishSleepNight(open!.id, 2, "Still groggy");
+    const after = (await repository.sleepNights())[0];
+    expect(after.restfulness).toBe(2);
+    expect(after.subjective_note).toBe("Still groggy");
+    expect(after.stretches).toHaveLength(2);
+    expect(await repository.currentSleepNight()).toBeNull();
+    expect((await repository.history(date,date)).reflections[0].text).toBe("Existing journal entry");
+    await migrate(db);
+    expect((await repository.sleepNights())[0].stretches).toHaveLength(2);
+  });
+  it("keeps a draft on invalid time or future wake time",async()=>{
+    await repository.startSleepNight("2026-11-09");
+    const draft = await repository.currentSleepNight();
+    await expect(repository.addSleepStretch(draft!.id,"25:00","07:00")).rejects.toThrow();
+    expect((await repository.currentSleepNight())?.stretches).toHaveLength(0);
+    await expect(repository.finishSleepNight(draft!.id,3)).rejects.toThrow();
+    await repository.discardEmptySleepNight(draft!.id);
+    expect(await repository.currentSleepNight()).toBeNull();
+  });
   it("rejects developer utilities in production", async () => {
     vi.stubGlobal("__DEV__", false);
     await expect(repository.seed()).rejects.toThrow();
