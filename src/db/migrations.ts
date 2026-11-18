@@ -31,13 +31,17 @@ CREATE TABLE IF NOT EXISTS library_items (
 CREATE INDEX IF NOT EXISTS library_items_kind ON library_items(kind);
 CREATE INDEX IF NOT EXISTS library_items_date ON library_items(updated_at);
 `;
+export const schemaV3 = `
+ALTER TABLE supports ADD COLUMN artwork_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE supports ADD COLUMN platform TEXT NOT NULL DEFAULT '';
+`;
 export async function migrate(db: Database) {
   await db.execAsync("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
   await db.transaction(async (tx) => {
     const version = await tx.getFirstAsync<{ user_version: number }>(
       "PRAGMA user_version",
     );
-    if ((version?.user_version ?? 0) > 2)
+    if ((version?.user_version ?? 0) > 3)
       throw new Error("This database needs a newer version of Open Chair.");
     if (!version?.user_version) {
       await tx.execAsync(schemaV1);
@@ -46,6 +50,10 @@ export async function migrate(db: Database) {
     if ((version?.user_version ?? 0) < 2) {
       await tx.execAsync(schemaV2);
       await tx.execAsync("PRAGMA user_version = 2");
+    }
+    if ((version?.user_version ?? 0) < 3) {
+      await tx.execAsync(schemaV3);
+      await tx.execAsync("PRAGMA user_version = 3");
     }
   });
 }
