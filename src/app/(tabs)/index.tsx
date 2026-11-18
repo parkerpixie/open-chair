@@ -57,6 +57,7 @@ const shortcuts: {
   { title: "My Supports", description: "People and meetings", glyph: "♧", action: () => router.navigate("/supports") },
   { title: "Explore patterns", description: "What you may notice", glyph: "◈", action: () => router.push("/patterns") },
   { title: "My Library", description: "Podcasts and reflections", glyph: "♫", action: () => router.push("/library") },
+  { title: "My Sleep", description: "Record my night", glyph: "☾", action: () => router.push("/sleep") },
 ];
 
 function Shortcut({ title, description, glyph, action }: (typeof shortcuts)[number]) {
@@ -195,7 +196,7 @@ export default function TodayScreen() {
       <View style={styles.endCard}>
         <Text style={styles.endTitle}>A little care goes a long way.</Text>
         <Text style={styles.endBody}>
-          Sleep, food, movement, and body check-ins are part of our next build. For now, you can start with your feelings, your people, or a tool.
+          Sleep is ready to track now. Food, movement and body check-ins are part of our next build.
         </Text>
         <Text style={styles.endBody}>
           {checkIns.length ? `You've checked in ${checkIns.length} time${checkIns.length === 1 ? "" : "s"} today.` : "You don't have to check in to be welcome here."}
