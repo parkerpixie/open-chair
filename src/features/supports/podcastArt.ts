@@ -32,9 +32,9 @@ export async function findPodcastCovers(nameOrUrl: string, titleFallback: string
     : "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=8&term=" + encodeURIComponent(term);
   const response = await fetch(endpoint);
   if (!response.ok) throw new Error("Artwork search is unavailable. You can still paste a cover image URL.");
-  const data = await response.json() as { results?: Array<{
+  const data = await response.json() as { results?: {
     collectionName?: string; artistName?: string; artworkUrl600?: string; artworkUrl100?: string;
-  }> };
+  }[] };
   return (data.results || []).filter(x => !!x.collectionName && !!(x.artworkUrl600 || x.artworkUrl100))
     .slice(0, 8).map(x => ({
       title: x.collectionName || "",
