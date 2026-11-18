@@ -56,7 +56,7 @@ describe("SQLite repositories", () => {
     const h = await repository.history(today, today);
     expect(h.checkIns[0].feelings).toHaveLength(2);
     expect(h.checkIns[0].note).toBe("A note");
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
   });
   it("rolls back the entire check-in if a child insert fails", async () => {
     sql.exec(
@@ -179,7 +179,7 @@ describe("SQLite repositories", () => {
     const day = await repository.history("2026-09-01", "2026-09-01");
     expect(day.checkIns).toHaveLength(2);
     expect(day.checkIns.map((c) => c.note).sort()).toEqual(["First", "Second"]);
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
   });
   it("does not mark scheduled supports as activity and returns empty history for empty days", async () => {
     await repository.saveSupport({
@@ -251,13 +251,34 @@ describe("SQLite repositories", () => {
       const upgradedDb = adapter(oldSql);
       await migrate(upgradedDb);
       const upgradedRepo = new Repository(upgradedDb);
-      expect(oldSql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
+      expect(oldSql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
       expect((await upgradedRepo.supports())[0].name).toBe("Tuesday meeting");
       expect((await upgradedRepo.history("2026-11-17", "2026-11-17")).reflections[0].text).toBe("Don't lose this.");
       expect(await upgradedRepo.libraryItems()).toEqual([]);
       await migrate(upgradedDb);
       expect((await upgradedRepo.supports())).toHaveLength(1);
     } finally { oldSql.close(); }
+  });
+
+  it("stores podcast Supports with Amazon Music URLs and cover artwork across migrations", async () => {
+    const podcast = {
+      ...newSupport(), type: "Podcast", name: "The Mel Robbins Podcast",
+      platform: "Amazon Music",
+      url: "https://music.amazon.com/podcasts/sample-show",
+      artwork_url: "https://example.com/mel-robbins-art.jpg",
+    };
+    await repository.saveSupport(podcast);
+    let saved = (await repository.supports()).find(s => s.id === podcast.id);
+    expect(saved).toMatchObject({
+      type: "Podcast", platform: "Amazon Music", url: podcast.url,
+      artwork_url: podcast.artwork_url, weekdays: [],
+    });
+    await migrate(db);
+    saved = (await repository.supports()).find(s => s.id === podcast.id);
+    expect(saved?.artwork_url).toBe(podcast.artwork_url);
+    await repository.saveSupport({ ...podcast, artwork_url: "https://example.com/new-cover.jpg" });
+    expect((await repository.supports())[0].artwork_url).toBe("https://example.com/new-cover.jpg");
+    await expect(repository.saveSupport({ ...podcast, url: "javascript:bad" })).rejects.toThrow();
   });
   it("rejects developer utilities in production", async () => {
     vi.stubGlobal("__DEV__", false);
