@@ -107,14 +107,14 @@ export default function SleepScreen() {
       <Heading small>Night starting</Heading>
       <Copy>{displayDate(nightDate)}</Copy>
       <Row><Button secondary label="← Earlier" onPress={()=>setNightDate(d=>addDays(d,-1))}/><Button secondary label="Later →" disabled={nightDate>=localDateKey()} onPress={()=>setNightDate(d=>addDays(d,1))}/></Row>
-      <Button secondary label="Save tonight's blank journal (fill it in tomorrow)" disabled={action.busy}
+      <Button secondary label="Save tonight’s blank journal (fill it in tomorrow)" disabled={action.busy}
         onPress={()=>void action.run(async()=>{
           await repository.startSleepNight(nightDate);
           await resource.reload();
         })}/>
     </Card>}
     {draft && !draft.stretches.length && <Card tinted>
-      <Heading small>Tonight's journal is ready</Heading>
+      <Heading small>Tonight’s journal is ready</Heading>
       <Copy muted>Night starting {displayDate(draft.night_date)}. No timer is running. Come back after waking and enter your sleep stretches using the clocks.</Copy>
     </Card>}
     <View style={styles.clockGrid}>
