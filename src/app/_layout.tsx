@@ -22,6 +22,7 @@ export default function RootLayout() {
           <Stack.Screen name="patterns" options={{ title: "Patterns" }} />
           <Stack.Screen name="settings" options={{ title: "Settings" }} />
           <Stack.Screen name="library" options={{ title: "My Library" }} />
+          <Stack.Screen name="sleep" options={{ title: "Sleep Journal" }} />
           <Stack.Screen
             name="tool/[id]"
             options={{ title: "A little room to try" }}
