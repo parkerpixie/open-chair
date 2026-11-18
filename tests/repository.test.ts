@@ -2,8 +2,8 @@
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Database, Connection } from "../src/db/database";
-import { migrate } from "../src/db/migrations";
-import { Repository, newSupport } from "../src/db/repository";
+import { migrate, schemaV1 } from "../src/db/migrations";
+import { Repository, newSupport, newLibraryItem } from "../src/db/repository";
 import { feelings } from "../src/features/check-in/catalog";
 import { localDateKey, addDays } from "../src/lib/dates";
 import { derivePatterns } from "../src/features/patterns/derive";
@@ -56,7 +56,7 @@ describe("SQLite repositories", () => {
     const h = await repository.history(today, today);
     expect(h.checkIns[0].feelings).toHaveLength(2);
     expect(h.checkIns[0].note).toBe("A note");
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(1);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
   });
   it("rolls back the entire check-in if a child insert fails", async () => {
     sql.exec(
@@ -179,7 +179,7 @@ describe("SQLite repositories", () => {
     const day = await repository.history("2026-09-01", "2026-09-01");
     expect(day.checkIns).toHaveLength(2);
     expect(day.checkIns.map((c) => c.note).sort()).toEqual(["First", "Second"]);
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(1);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
   });
   it("does not mark scheduled supports as activity and returns empty history for empty days", async () => {
     await repository.saveSupport({
@@ -213,6 +213,51 @@ describe("SQLite repositories", () => {
     await expect(
       repository.activityDates("2026-02-30", "2026-03-01"),
     ).rejects.toThrow();
+  });
+
+  it("saves and edits podcasts with cover art, and keeps the library separate from check-ins", async () => {
+    const show = {
+      ...newLibraryItem(), title: "A podcast worth keeping", creator: "Host",
+      url: "https://open.spotify.com/show/example",
+      artwork_url: "https://example.com/cover.jpg", notes: "Try episode three.",
+    };
+    await repository.saveLibraryItem(show);
+    expect(await repository.libraryItems()).toEqual([expect.objectContaining({
+      id: show.id, title: show.title, artwork_url: show.artwork_url,
+    })]);
+    await repository.saveLibraryItem({ ...show, title: "A new title", favorite: 1 });
+    expect((await repository.libraryItems())[0].title).toBe("A new title");
+    expect(await repository.libraryItems()).toHaveLength(1);
+    await repository.saveCheckIn([feelings[0]], null, "My feeling");
+    await repository.deleteLibraryItem(show.id);
+    expect(await repository.libraryItems()).toEqual([]);
+    expect((await repository.history(today, today)).checkIns).toHaveLength(1);
+  });
+
+  it("upgrades existing version 1 journals and meeting records without deleting them", async () => {
+    const oldSql = new DatabaseSync(":memory:");
+    try {
+      oldSql.exec(schemaV1 + "PRAGMA user_version = 1;");
+      oldSql.prepare("INSERT INTO reflections VALUES (?, ?, ?, ?, ?)").run(
+        "old-ref", "2026-11-17", "2026-11-17T12:00:00.000Z", "Don't lose this.", 0
+      );
+      oldSql.prepare(`INSERT INTO supports
+        (id,name,type,mode,weekdays,time,url,location,phone,meeting_id,passcode,notes,favorite,active,reminder_offset,created_at,updated_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        "old-meeting", "Tuesday meeting", "Meeting", "Online", "[2]", "07:30",
+        "https://example.com/meeting", "", "", "", "", "", 1, 1, null,
+        "2026-11-17T12:00:00.000Z", "2026-11-17T12:00:00.000Z"
+      );
+      const upgradedDb = adapter(oldSql);
+      await migrate(upgradedDb);
+      const upgradedRepo = new Repository(upgradedDb);
+      expect(oldSql.prepare("PRAGMA user_version").get()?.user_version).toBe(2);
+      expect((await upgradedRepo.supports())[0].name).toBe("Tuesday meeting");
+      expect((await upgradedRepo.history("2026-11-17", "2026-11-17")).reflections[0].text).toBe("Don't lose this.");
+      expect(await upgradedRepo.libraryItems()).toEqual([]);
+      await migrate(upgradedDb);
+      expect((await upgradedRepo.supports())).toHaveLength(1);
+    } finally { oldSql.close(); }
   });
   it("rejects developer utilities in production", async () => {
     vi.stubGlobal("__DEV__", false);
