@@ -2,6 +2,7 @@ import { useState } from "react";
 import { router } from "expo-router";
 import {
   Button,
+  Card,
   Copy,
   ErrorMessage,
   Heading,
@@ -11,6 +12,7 @@ import {
 import { useRepository } from "../../db/provider";
 import { useResource } from "../../lib/hooks";
 import { localDateKey } from "../../lib/dates";
+import { formatDuration, sleepMinutes, restLabels } from "../sleep/model";
 import {
   dayTitle,
   monthRange,
@@ -75,6 +77,23 @@ function CalendarActivity({
     </>
   );
 }
+
+function DaySleep({ date }: { date: string }) {
+  const repository = useRepository();
+  const resource = useResource(() => repository.sleepNights());
+  const record = (resource.data ?? []).find(n => n.completed_at && n.wake_date === date);
+  if (resource.loading) return <Loading />;
+  if (resource.error) return <ErrorMessage message="Sleep could not be loaded for this day." />;
+  if (!record) return null;
+  return <Card tinted>
+    <Heading small>☾ The night before</Heading>
+    <Copy>{formatDuration(sleepMinutes(record.stretches))} asleep across {record.stretches.length} stretch{record.stretches.length === 1 ? "" : "es"}</Copy>
+    {record.restfulness !== null && <Copy muted>Rested: {restLabels[record.restfulness - 1]} ({record.restfulness}/5)</Copy>}
+    {!!record.subjective_note && <Copy muted>{record.subjective_note}</Copy>}
+    <Button secondary label="Open sleep journal" onPress={() => router.push("/sleep")} />
+  </Card>;
+}
+
 function SelectedDay({ date }: { date: string }) {
   const repository = useRepository();
   const resource = useResource(() => repository.history(date, date));
@@ -122,6 +141,7 @@ export function MyDaysScreen() {
         onToday={() => setSelected(localDateKey())}
       />
       {/* Key each request to its calendar date so an older response or error cannot appear under a new heading. */}
+      <DaySleep key={"sleep-"+selected} date={selected} />
       <SelectedDay key={selected} date={selected} />
       <Button secondary label="☾ Open my sleep journal" onPress={() => router.push("/sleep")} />
       <Button
