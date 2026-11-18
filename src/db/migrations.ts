@@ -35,13 +35,37 @@ export const schemaV3 = `
 ALTER TABLE supports ADD COLUMN artwork_url TEXT NOT NULL DEFAULT '';
 ALTER TABLE supports ADD COLUMN platform TEXT NOT NULL DEFAULT '';
 `;
+// Additive V4: independent sleep journal tables, existing local history untouched.
+export const schemaV4 = `
+CREATE TABLE IF NOT EXISTS sleep_nights (
+  id TEXT PRIMARY KEY NOT NULL,
+  night_date TEXT NOT NULL,
+  wake_date TEXT NOT NULL DEFAULT '',
+  restfulness INTEGER CHECK(restfulness BETWEEN 1 AND 5),
+  subjective_note TEXT NOT NULL DEFAULT '',
+  completed_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sleep_nights_wake ON sleep_nights(wake_date);
+CREATE INDEX IF NOT EXISTS sleep_nights_night ON sleep_nights(night_date);
+CREATE TABLE IF NOT EXISTS sleep_stretches (
+  id TEXT PRIMARY KEY NOT NULL,
+  night_id TEXT NOT NULL REFERENCES sleep_nights(id) ON DELETE CASCADE,
+  started_at TEXT NOT NULL,
+  ended_at TEXT NOT NULL,
+  estimated INTEGER NOT NULL DEFAULT 0,
+  note TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS sleep_stretches_night ON sleep_stretches(night_id, started_at);
+`;
 export async function migrate(db: Database) {
   await db.execAsync("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
   await db.transaction(async (tx) => {
     const version = await tx.getFirstAsync<{ user_version: number }>(
       "PRAGMA user_version",
     );
-    if ((version?.user_version ?? 0) > 3)
+    if ((version?.user_version ?? 0) > 4)
       throw new Error("This database needs a newer version of Open Chair.");
     if (!version?.user_version) {
       await tx.execAsync(schemaV1);
@@ -54,6 +78,10 @@ export async function migrate(db: Database) {
     if ((version?.user_version ?? 0) < 3) {
       await tx.execAsync(schemaV3);
       await tx.execAsync("PRAGMA user_version = 3");
+    }
+    if ((version?.user_version ?? 0) < 4) {
+      await tx.execAsync(schemaV4);
+      await tx.execAsync("PRAGMA user_version = 4");
     }
   });
 }
