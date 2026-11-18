@@ -23,6 +23,12 @@ export default function SupportsScreen() {
       <Copy muted>
         Keep the people, places, and practices you want to return to.
       </Copy>
+      <Card tinted>
+        <Eyebrow>Personal collection</Eyebrow>
+        <Heading small>My Library</Heading>
+        <Copy muted>Keep your podcasts, reflections, and links together, with cover art and your own notes.</Copy>
+        <Button label="Open My Library" secondary onPress={() => router.push("/library")} />
+      </Card>
       <Button
         label="Add a support"
         onPress={() => router.push("/support/new")}
