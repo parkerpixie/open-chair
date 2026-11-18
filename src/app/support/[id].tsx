@@ -81,7 +81,7 @@ export default function SupportDetail() {
         <Image source={{ uri: support.artwork_url }} accessibilityLabel={support.name + " artwork"}
           style={{ width: 150, height: 150, borderRadius: 18 }} resizeMode="cover" />
       )}
-      {support.type === "Podcast" && !!support.platform && <Copy muted>Listen on {support.platform}</Copy>
+      {support.type === "Podcast" && !!support.platform && <Copy muted>Listen on {support.platform}</Copy>}
       {!support.active && <Copy muted>Inactive support</Copy>}
       {next && <Copy>Next: {next.toLocaleString()}</Copy>}
       <Card>
