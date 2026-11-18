@@ -13,6 +13,23 @@ import {
 import type { Support } from "../../db/types";
 import { useRepository } from "../../db/provider";
 import { useAction } from "../../lib/hooks";
+
+function toDisplayTime(value: string): { time: string; period: "AM" | "PM" } {
+  const [hour, minute] = value.split(":").map(Number);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23 || !Number.isInteger(minute))
+    return { time: "9:00", period: "AM" };
+  return {
+    time: `${hour % 12 || 12}:${String(minute).padStart(2, "0")}`,
+    period: hour >= 12 ? "PM" : "AM",
+  };
+}
+function toSavedTime(value: string, period: "AM" | "PM"): string | null {
+  const match = /^(1[0-2]|0?[1-9]):([0-5][0-9])$/.exec(value.trim());
+  if (!match) return null;
+  const hour = Number(match[1]) % 12 + (period === "PM" ? 12 : 0);
+  return `${String(hour).padStart(2, "0")}:${match[2]}`;
+}
+
 export function SupportEditor({
   initial,
   onSaved,
@@ -21,6 +38,8 @@ export function SupportEditor({
   onSaved?: () => void;
 }) {
   const [support, setSupport] = useState(initial);
+  const [displayTime, setDisplayTime] = useState(() => toDisplayTime(initial.time).time);
+  const [period, setPeriod] = useState<"AM" | "PM">(() => toDisplayTime(initial.time).period);
   const repository = useRepository();
   const action = useAction();
   function update<K extends keyof Support>(key: K, value: Support[K]) {
@@ -131,13 +150,20 @@ export function SupportEditor({
           ))}
         </Row>
         {!!support.weekdays.length && (
-          <Field
-            label="Time (24-hour HH:MM)"
-            placeholder="09:00"
-            maxLength={5}
-            value={support.time}
-            onChangeText={(v) => update("time", v)}
-          />
+          <>
+            <Field
+              label="Meeting time (hour:minute)"
+              placeholder="7:30"
+              maxLength={5}
+              keyboardType="numbers-and-punctuation"
+              value={displayTime}
+              onChangeText={setDisplayTime}
+            />
+            <Row>
+              <Chip label="AM" selected={period === "AM"} onPress={() => setPeriod("AM")} />
+              <Chip label="PM" selected={period === "PM"} onPress={() => setPeriod("PM")} />
+            </Row>
+          </>
         )}
       </Card>
       <Field
@@ -166,7 +192,10 @@ export function SupportEditor({
         disabled={action.busy || !support.name.trim()}
         onPress={() =>
           action.run(async () => {
-            await repository.saveSupport(support);
+            const savedTime = support.weekdays.length ? toSavedTime(displayTime, period) : support.time;
+            if (support.weekdays.length && !savedTime)
+              throw new Error("Enter a time like 7:30, then choose AM or PM.");
+            await repository.saveSupport({ ...support, time: savedTime || support.time });
             if (onSaved) onSaved();
             else
               router.replace({
