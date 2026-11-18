@@ -29,7 +29,7 @@ async function findPodcast(input: string): Promise<AppleShow[]> {
     ?? /podcasts\.apple\.com\/[^\s]*\bid(\d+)/i.exec(text)?.[1];
   const looksUrl = /^https?:\/\//i.test(text);
   if (looksUrl && !appleId)
-    throw new Error("For Spotify or other links, enter the podcast&apos;s NAME in the search field. Keep the original URL in the Link field.");
+    throw new Error("For Spotify or other links, enter the podcast's NAME in the search field. Keep the original URL in the Link field.");
   const url = appleId
     ? `https://itunes.apple.com/lookup?id=${appleId}&entity=podcast`
     : `https://itunes.apple.com/search?term=${encodeURIComponent(text)}&media=podcast&entity=podcast&limit=8`;
