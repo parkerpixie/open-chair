@@ -164,7 +164,12 @@ export class Repository {
   }
   async saveSupport(s: Support) {
     const name = requiredText(s.name, 100);
-    if (s.mode === "Online" && !validUrl(s.url))
+    if (s.type === "Podcast" && !validUrl(s.url))
+      throw new Error("Add a full https:// link to listen to this podcast.");
+    if (s.artwork_url && !validUrl(s.artwork_url))
+      throw new Error("Enter a valid https:// artwork URL.");
+    if (s.platform.length > 60) throw new Error("Keep the platform under 60 characters.");
+    if (s.mode === "Online" && s.type !== "Podcast" && !validUrl(s.url))
       throw new Error("Enter a full http:// or https:// meeting link.");
     if (s.mode === "Phone" && !/^[+\d\s().-]{3,40}$/.test(s.phone))
       throw new Error("Enter a valid phone number.");
@@ -173,7 +178,7 @@ export class Repository {
     if (s.weekdays.length && !/^([01]\d|2[0-3]):[0-5]\d$/.test(s.time))
       throw new Error("Enter the time as HH:MM, using 24-hour time.");
     await this.db.runAsync(
-      `INSERT INTO supports (id,name,type,mode,weekdays,time,url,location,phone,meeting_id,passcode,notes,favorite,active,reminder_offset,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,type=excluded.type,mode=excluded.mode,weekdays=excluded.weekdays,time=excluded.time,url=excluded.url,location=excluded.location,phone=excluded.phone,meeting_id=excluded.meeting_id,passcode=excluded.passcode,notes=excluded.notes,favorite=excluded.favorite,active=excluded.active,reminder_offset=excluded.reminder_offset,updated_at=excluded.updated_at`,
+      `INSERT INTO supports (id,name,type,mode,weekdays,time,url,location,phone,meeting_id,passcode,notes,favorite,active,reminder_offset,created_at,updated_at,artwork_url,platform) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,type=excluded.type,mode=excluded.mode,weekdays=excluded.weekdays,time=excluded.time,url=excluded.url,location=excluded.location,phone=excluded.phone,meeting_id=excluded.meeting_id,passcode=excluded.passcode,notes=excluded.notes,favorite=excluded.favorite,active=excluded.active,reminder_offset=excluded.reminder_offset,artwork_url=excluded.artwork_url,platform=excluded.platform,updated_at=excluded.updated_at`,
       s.id,
       name,
       s.type,
@@ -191,6 +196,8 @@ export class Repository {
       s.reminder_offset,
       s.created_at,
       new Date().toISOString(),
+      s.artwork_url.trim(),
+      s.platform.trim(),
     );
   }
   async deleteSupport(key: string) {
@@ -304,6 +311,8 @@ export function newSupport(): Support {
     name: "",
     type: "Other",
     mode: "Flexible / other",
+    artwork_url: "",
+    platform: "",
     weekdays: [],
     time: "09:00",
     url: "",
