@@ -13,17 +13,39 @@ CREATE INDEX tool_sessions_check_in ON tool_sessions(check_in_id);
 CREATE INDEX takeaways_date ON support_takeaways(local_date);
 CREATE INDEX takeaways_support ON support_takeaways(support_id);
 `;
+// Additive V2: user's existing check-ins, reflections and supports remain intact.
+export const schemaV2 = `
+CREATE TABLE IF NOT EXISTS library_items (
+  id TEXT PRIMARY KEY NOT NULL,
+  kind TEXT NOT NULL CHECK(kind IN ('podcast','reflection','article','video','other')),
+  title TEXT NOT NULL,
+  url TEXT NOT NULL DEFAULT '',
+  creator TEXT NOT NULL DEFAULT '',
+  summary TEXT NOT NULL DEFAULT '',
+  artwork_url TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  favorite INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS library_items_kind ON library_items(kind);
+CREATE INDEX IF NOT EXISTS library_items_date ON library_items(updated_at);
+`;
 export async function migrate(db: Database) {
   await db.execAsync("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
   await db.transaction(async (tx) => {
     const version = await tx.getFirstAsync<{ user_version: number }>(
       "PRAGMA user_version",
     );
-    if ((version?.user_version ?? 0) > 1)
+    if ((version?.user_version ?? 0) > 2)
       throw new Error("This database needs a newer version of Open Chair.");
     if (!version?.user_version) {
       await tx.execAsync(schemaV1);
       await tx.execAsync("PRAGMA user_version = 1");
+    }
+    if ((version?.user_version ?? 0) < 2) {
+      await tx.execAsync(schemaV2);
+      await tx.execAsync("PRAGMA user_version = 2");
     }
   });
 }
