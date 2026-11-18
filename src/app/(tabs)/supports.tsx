@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { Image, Linking } from "react-native";
 import {
   Button,
   Card,
@@ -79,14 +80,20 @@ export default function SupportsScreen() {
       {!!supports.length && <Heading small>All supports</Heading>}
       {supports.map((support) => (
         <Card key={support.id}>
+          {support.type === "Podcast" && !!support.artwork_url && (
+            <Image source={{ uri: support.artwork_url }} style={{ width: 90, height: 90, borderRadius: 14 }} resizeMode="cover" />
+          )}
           <Heading small>
             {support.favorite ? "★ " : ""}
             {support.name}
           </Heading>
           <Copy muted>
-            {support.type} · {support.mode}
+            {support.type}{support.type === "Podcast" ? (support.platform ? " · " + support.platform : "") : " · " + support.mode}
             {!support.active ? " · Inactive" : ""}
           </Copy>
+          {support.type === "Podcast" && !!support.url && (
+            <Button label="Open podcast" secondary onPress={() => void Linking.openURL(support.url)} />
+          )}
           <Button
             secondary
             label="Details & takeaways"
