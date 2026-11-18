@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Linking } from "react-native";
+import { Image, Linking } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Button,
@@ -77,10 +77,20 @@ export default function SupportDetail() {
         {support.type} · {support.mode}
       </Eyebrow>
       <Heading>{support.name}</Heading>
+      {support.type === "Podcast" && !!support.artwork_url && (
+        <Image source={{ uri: support.artwork_url }} accessibilityLabel={support.name + " artwork"}
+          style={{ width: 150, height: 150, borderRadius: 18 }} resizeMode="cover" />
+      )}
+      {support.type === "Podcast" && !!support.platform && <Copy muted>Listen on {support.platform}</Copy>
       {!support.active && <Copy muted>Inactive support</Copy>}
       {next && <Copy>Next: {next.toLocaleString()}</Copy>}
       <Card>
-        {support.mode === "Online" && (
+        {support.type === "Podcast" && <Button label="Open podcast"
+          onPress={() => action.run(async () => {
+            if (!validUrl(support.url)) throw new Error("This podcast link isn't valid. Edit the support to update it.");
+            await Linking.openURL(support.url);
+          })} />}
+        {support.type !== "Podcast" && support.mode === "Online" && (
           <Button
             label="Open meeting link"
             onPress={() =>
@@ -94,7 +104,7 @@ export default function SupportDetail() {
             }
           />
         )}
-        {support.mode === "Phone" && (
+        {support.type !== "Podcast" && support.mode === "Phone" && (
           <Button
             label="Call support"
             onPress={() =>
@@ -116,9 +126,9 @@ export default function SupportDetail() {
           onPress={() => setEditing(true)}
         />
       </Card>
-      <Heading small>What did you take away?</Heading>
+      <Heading small>{support.type === "Podcast" ? "What would you like to remember?" : "What did you take away?"}</Heading>
       <Copy muted>
-        A thought worth keeping. Saving a takeaway does not mark attendance.
+        Save a thought worth keeping. Notes stay in your history.
       </Copy>
       <Field
         label="Your takeaway"
