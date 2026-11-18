@@ -26,6 +26,8 @@ export interface Support {
   name: string;
   type: string;
   mode: string;
+  artwork_url: string;
+  platform: string;
   weekdays: number[];
   time: string;
   url: string;
