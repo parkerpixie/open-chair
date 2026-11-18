@@ -56,7 +56,7 @@ describe("SQLite repositories", () => {
     const h = await repository.history(today, today);
     expect(h.checkIns[0].feelings).toHaveLength(2);
     expect(h.checkIns[0].note).toBe("A note");
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(4);
   });
   it("rolls back the entire check-in if a child insert fails", async () => {
     sql.exec(
@@ -179,7 +179,7 @@ describe("SQLite repositories", () => {
     const day = await repository.history("2026-09-01", "2026-09-01");
     expect(day.checkIns).toHaveLength(2);
     expect(day.checkIns.map((c) => c.note).sort()).toEqual(["First", "Second"]);
-    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
+    expect(sql.prepare("PRAGMA user_version").get()?.user_version).toBe(4);
   });
   it("does not mark scheduled supports as activity and returns empty history for empty days", async () => {
     await repository.saveSupport({
@@ -251,7 +251,7 @@ describe("SQLite repositories", () => {
       const upgradedDb = adapter(oldSql);
       await migrate(upgradedDb);
       const upgradedRepo = new Repository(upgradedDb);
-      expect(oldSql.prepare("PRAGMA user_version").get()?.user_version).toBe(3);
+      expect(oldSql.prepare("PRAGMA user_version").get()?.user_version).toBe(4);
       expect((await upgradedRepo.supports())[0].name).toBe("Tuesday meeting");
       expect((await upgradedRepo.history("2026-11-17", "2026-11-17")).reflections[0].text).toBe("Don't lose this.");
       expect(await upgradedRepo.libraryItems()).toEqual([]);
