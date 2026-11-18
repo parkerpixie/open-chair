@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { palette as c } from "../constants/palette";
 import { Button, Card, Chip, Copy, ErrorMessage, Eyebrow, Field, Heading, Loading, Row, Screen } from "../components/app/ui";
 import { useRepository } from "../db/provider";
 import { useAction, useResource } from "../lib/hooks";
 import { addDays, displayDate, localDateKey } from "../lib/dates";
-import { awakeMinutes, formatDuration, recommendedNightDate, restLabels, sleepMinutes, timeFromIso, type Restfulness, type SleepNight } from "../features/sleep/model";
+import { awakeMinutes, formatDuration, recommendedNightDate, restLabels, sleepMinutes, type Restfulness, type SleepNight } from "../features/sleep/model";
 
 type ClockValue = { hour: string; minute: string; period: "AM" | "PM" };
 function initialClock(hour: number, minute = 0): ClockValue {
@@ -73,15 +73,6 @@ export default function SleepScreen() {
   const [restNote,setRestNote] = useState("");
   const [showFinish,setShowFinish] = useState(false);
   const [showHistory,setShowHistory] = useState(false);
-  useEffect(()=>{
-    const last=draft?.stretches[draft.stretches.length-1];
-    if (last) {
-      const after=new Date(Date.parse(last.ended_at)+60*60000);
-      setStart(initialClock(after.getHours(),after.getMinutes()));
-      const finish=new Date(Date.parse(last.ended_at)+5*3600000);
-      setEnd(initialClock(finish.getHours(),finish.getMinutes()));
-    }
-  },[draft?.stretches.length,draft?.id]);
   function addStretch(){
     void action.run(async ()=>{
       const from=parseClock(start), to=parseClock(end);
@@ -92,6 +83,14 @@ export default function SleepScreen() {
       }
       if (!current) throw new Error("Could not create your sleep night. Try again.");
       await repository.addSleepStretch(current.id,from,to,estimated,stretchNote);
+      const refreshed = await repository.currentSleepNight();
+      const last = refreshed?.stretches[refreshed.stretches.length-1];
+      if(last){
+        const after=new Date(Date.parse(last.ended_at)+3600000);
+        const wake=new Date(Date.parse(last.ended_at)+5*3600000);
+        setStart(initialClock(after.getHours(),after.getMinutes()));
+        setEnd(initialClock(wake.getHours(),wake.getMinutes()));
+      }
       setStretchNote("");
       setEstimated(false);
       await resource.reload();
