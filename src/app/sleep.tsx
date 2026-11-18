@@ -120,7 +120,7 @@ export default function SleepScreen() {
       <SleepSummary night={draft}/>
       <Button secondary disabled={action.busy||!draft.stretches.length} label="↶ Undo last stretch" onPress={()=>void action.run(async()=>{await repository.undoLastSleepStretch(draft.id);await resource.reload();})}/>
       <Button secondary disabled={action.busy||!!draft.stretches.length} label="Discard empty night" onPress={()=>void action.run(async()=>{await repository.discardEmptySleepNight(draft.id);await resource.reload();})}/>
-      {!showFinish && <Button label="☀️ I'm up for the day" disabled={!draft.stretches.length||action.busy} onPress={()=>setShowFinish(true)}/>}
+      {!showFinish && <Button label="☀️ I&apos;m up for the day" disabled={!draft.stretches.length||action.busy} onPress={()=>setShowFinish(true)}/>}
       {showFinish && <Card tinted>
         <Heading small>How rested do you feel?</Heading>
         <Copy>Hours aren't the whole story. Your own experience matters.</Copy>
