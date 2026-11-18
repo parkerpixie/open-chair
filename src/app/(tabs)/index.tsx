@@ -119,6 +119,7 @@ export default function TodayScreen() {
             <Text style={styles.meetingInfo}>{meetingDetail}  ·  {nextMeeting.support.mode}</Text>
             <Button
               label="Open meeting details"
+              secondary
               onPress={() => router.push({ pathname: "/support/[id]", params: { id: nextMeeting.support.id } })}
             />
             {todayMeetings.length > 1 && (
@@ -129,7 +130,7 @@ export default function TodayScreen() {
           <>
             <Text style={styles.meetingName}>Find your people.</Text>
             <Text style={styles.meetingInfo}>Add your regular meetings, people, or places of support to see what's coming up.</Text>
-            <Button label="Add a meeting or support" onPress={() => router.push("/support/new")} />
+            <Button label="Add a meeting or support" secondary onPress={() => router.push("/support/new")} />
           </>
         )}
         <Pressable
@@ -211,21 +212,21 @@ export default function TodayScreen() {
 const styles = StyleSheet.create({
   intro: { gap: 8, paddingTop: 8, paddingBottom: 6 },
   eyebrow: { color: c.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.7 },
-  lightEyebrow: { color: "#E8F2E5", fontSize: 11, fontWeight: "800", letterSpacing: 1.1, flex: 1 },
+  lightEyebrow: { color: "#EAF4FA", fontSize: 11, fontWeight: "800", letterSpacing: 1.1, flex: 1 },
   greeting: { fontSize: 29, lineHeight: 36, fontWeight: "700", color: c.ink, letterSpacing: -0.7 },
   subtle: { color: c.muted, fontSize: 14, lineHeight: 21 },
-  meetingCard: { backgroundColor: "#345740", borderRadius: 24, padding: 21, gap: 13 },
+  meetingCard: { backgroundColor: "#4C718A", borderRadius: 24, padding: 21, gap: 13 },
   overlineRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  meetingGlyph: { color: "#CFE2BF", fontSize: 24 },
+  meetingGlyph: { color: "#DBEAF2", fontSize: 24 },
   meetingName: { color: "#FFFFFF", fontSize: 23, lineHeight: 30, fontWeight: "700" },
-  meetingInfo: { color: "#E3ECDD", fontSize: 14, lineHeight: 21 },
+  meetingInfo: { color: "#F0F7FB", fontSize: 14, lineHeight: 21 },
   meetingLink: { paddingVertical: 5, alignSelf: "flex-start" },
-  meetingLinkText: { color: "#F6FFF0", fontSize: 14, fontWeight: "600" },
-  reflectionCard: { backgroundColor: "#FFFDF8", borderRadius: 24, padding: 21, borderWidth: 1, borderColor: c.border, gap: 14 },
-  reflectionGlyph: { color: "#92AD86", fontSize: 24 },
+  meetingLinkText: { color: "#FFFFFF", fontSize: 14, fontWeight: "600" },
+  reflectionCard: { backgroundColor: "#FFFDF9", borderRadius: 24, padding: 21, borderWidth: 1, borderColor: c.border, gap: 14 },
+  reflectionGlyph: { color: "#8FAFC3", fontSize: 24 },
   reflectionTitle: { color: c.ink, fontSize: 23, lineHeight: 30, fontWeight: "700", letterSpacing: -0.3 },
   reflectionBody: { color: c.ink, fontSize: 16, lineHeight: 26 },
-  questionBox: { backgroundColor: "#E9EFE4", borderRadius: 14, padding: 15, gap: 8 },
+  questionBox: { backgroundColor: "#E6F0F5", borderRadius: 14, padding: 15, gap: 8 },
   questionLabel: { color: c.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.2 },
   questionText: { color: c.ink, fontSize: 15, lineHeight: 23, fontWeight: "500" },
   reflectButton: { borderRadius: 14, backgroundColor: c.tint, alignItems: "center", padding: 15 },
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
   shortcutGlyph: { color: c.primary, fontSize: 23, fontWeight: "700" },
   shortcutTitle: { color: c.ink, fontSize: 15, fontWeight: "700" },
   shortcutDescription: { color: c.muted, fontSize: 12, lineHeight: 18 },
-  endCard: { borderRadius: 20, padding: 19, backgroundColor: "#E8EEE0", gap: 9 },
+  endCard: { borderRadius: 20, padding: 19, backgroundColor: "#E5EEF3", gap: 9 },
   endTitle: { color: c.primary, fontSize: 17, fontWeight: "700" },
   endBody: { color: c.ink, fontSize: 14, lineHeight: 22 },
 });
