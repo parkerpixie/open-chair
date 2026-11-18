@@ -1,4 +1,5 @@
 import type { Database } from "./database";
+import { newStretchTimes, type SleepNight, type SleepStretch, type Restfulness } from "../features/sleep/model";
 import { localDateKey, addDays, compareDates } from "../lib/dates";
 import { requiredText, validUrl } from "../lib/validation";
 import { feelings, type Feeling } from "../features/check-in/catalog";
@@ -254,6 +255,77 @@ export class Repository {
 
   async deleteLibraryItem(key: string): Promise<void> {
     await this.db.runAsync("DELETE FROM library_items WHERE id=?", key);
+  }
+
+
+  async sleepNights(): Promise<SleepNight[]> {
+    const nights = await this.db.getAllAsync<Omit<SleepNight, "stretches">>(
+      "SELECT * FROM sleep_nights ORDER BY COALESCE(completed_at, created_at) DESC"
+    );
+    const stretches = await this.db.getAllAsync<SleepStretch>(
+      "SELECT * FROM sleep_stretches ORDER BY started_at"
+    );
+    return nights.map(n => ({ ...n, stretches: stretches.filter(s => s.night_id === n.id) }));
+  }
+
+  async currentSleepNight(): Promise<SleepNight | null> {
+    return (await this.sleepNights()).find(n => !n.completed_at) ?? null;
+  }
+
+  async startSleepNight(nightDate: string): Promise<void> {
+    const open = await this.currentSleepNight();
+    if (open) throw new Error("Finish the current night before starting another.");
+    // Protect existing completed dates from accidental replacement.
+    if ((await this.sleepNights()).some(n => n.night_date === nightDate && n.completed_at))
+      throw new Error("This night is already saved. You can review it below.");
+    const now = new Date().toISOString();
+    await this.db.runAsync(
+      "INSERT INTO sleep_nights (id, night_date, created_at, updated_at) VALUES (?,?,?,?)",
+      id(), nightDate, now, now
+    );
+  }
+
+  async addSleepStretch(nightId: string, startTime: string, endTime: string, estimated = false, note = ""): Promise<void> {
+    const night = (await this.sleepNights()).find(n => n.id === nightId);
+    if (!night || night.completed_at) throw new Error("This sleep night is already finished or unavailable.");
+    if (note.length > 160) throw new Error("Keep your sleep note within 160 characters.");
+    const latest = night.stretches[night.stretches.length - 1];
+    const times = newStretchTimes(night.night_date, startTime, endTime, latest);
+    await this.db.transaction(async tx => {
+      await tx.runAsync(
+        "INSERT INTO sleep_stretches (id, night_id, started_at, ended_at, estimated, note) VALUES (?,?,?,?,?,?)",
+        id(), night.id, times.started_at, times.ended_at, estimated ? 1 : 0, note.trim()
+      );
+      await tx.runAsync("UPDATE sleep_nights SET updated_at=? WHERE id=?", new Date().toISOString(), night.id);
+    });
+  }
+
+  async undoLastSleepStretch(nightId: string): Promise<void> {
+    const night = (await this.sleepNights()).find(n => n.id === nightId);
+    if (!night || night.completed_at || !night.stretches.length) throw new Error("No unfinished sleep stretch to undo.");
+    await this.db.runAsync("DELETE FROM sleep_stretches WHERE id=?", night.stretches[night.stretches.length - 1].id);
+  }
+
+  async discardEmptySleepNight(nightId: string): Promise<void> {
+    const night = (await this.sleepNights()).find(n => n.id === nightId);
+    if (!night || night.completed_at || night.stretches.length) throw new Error("Only empty unfinished nights can be discarded.");
+    await this.db.runAsync("DELETE FROM sleep_nights WHERE id=?", nightId);
+  }
+
+  async finishSleepNight(nightId: string, restfulness: Restfulness, note = ""): Promise<void> {
+    const night = (await this.sleepNights()).find(n => n.id === nightId);
+    if (!night || night.completed_at || !night.stretches.length) throw new Error("Add a sleep stretch before finishing.");
+    if (![1,2,3,4,5].includes(restfulness)) throw new Error("Choose how rested you feel.");
+    if (note.length > 500) throw new Error("Keep your note within 500 characters.");
+    const wakeDate = localDateKey(new Date(night.stretches[night.stretches.length - 1].ended_at));
+    const others = await this.sleepNights();
+    if (others.some(n => n.id !== night.id && n.completed_at && n.wake_date === wakeDate))
+      throw new Error("Another completed sleep record already exists on that wake-up date.");
+    const now = new Date().toISOString();
+    await this.db.runAsync(
+      "UPDATE sleep_nights SET restfulness=?,subjective_note=?,wake_date=?,completed_at=?,updated_at=? WHERE id=? AND completed_at IS NULL",
+      restfulness, note.trim(), wakeDate, now, now, night.id
+    );
   }
 
   async clear(demoOnly = false) {
