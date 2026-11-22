@@ -9,6 +9,7 @@ import {
   Heading,
   Screen,
 } from "../../components/app/ui";
+import { skillGuides } from "../../features/tools/guides";
 import { tools } from "../../features/tools/catalog";
 import { Breathing } from "../../features/tools/Breathing";
 export default function ToolsScreen() {
@@ -43,6 +44,18 @@ export default function ToolsScreen() {
               <Card key={tool.id}>
                 <Heading small>{tool.title}</Heading>
                 <Copy muted>{tool.when}</Copy>
+                {skillGuides[tool.id] && (
+                  <Button
+                    secondary
+                    label="View illustrated guide"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/tool/[id]",
+                        params: { id: tool.id, guide: "1" },
+                      })
+                    }
+                  />
+                )}
                 <Button
                   secondary
                   label={`Explore ${tool.title}`}

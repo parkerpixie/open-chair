@@ -213,5 +213,21 @@ export const tools: Tool[] = [
     explanation:
       "Use a gentle manner, show interest, acknowledge the other person’s perspective, and allow some ease where it fits. Understanding someone does not require agreeing with them.",
   },
+  {
+    id: "rain",
+    title: "RAIN",
+    category: "Mindfulness",
+    when: "When a difficult feeling could use some compassion.",
+    explanation:
+      "Recognize what’s here, allow it to be present, investigate gently, and nurture yourself with kindness.",
+  },
+  {
+    id: "grounding",
+    title: "5–4–3–2–1 Grounding",
+    category: "Mindfulness",
+    when: "When you want to come back to the present moment.",
+    explanation:
+      "Notice five things you can see, four you can feel, three you can hear, two you can smell, and one you can taste.",
+  },
 ];
 export const toolById = (id: string) => tools.find((tool) => tool.id === id);
