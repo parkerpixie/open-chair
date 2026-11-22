@@ -4,6 +4,7 @@ import { localDateKey, addDays, compareDates } from "../lib/dates";
 import { requiredText, validUrl } from "../lib/validation";
 import { feelings, type Feeling } from "../features/check-in/catalog";
 import { toolById } from "../features/tools/catalog";
+import { stepsForTool } from "../features/tools/exercises";
 import type {
   CheckIn,
   History,
@@ -141,9 +142,11 @@ export class Repository {
     date = new Date(),
     demo = 0,
   ) {
-    if (!toolById(toolId)?.prompts || responses.length !== 3)
+    const tool = toolById(toolId);
+    if (!tool || responses.length !== stepsForTool(tool).length)
       throw new Error("This guided tool is unavailable.");
-    const clean = responses.map((text) => requiredText(text, 1000));
+    const clean = responses.map((text) => text.trim() ? requiredText(text, 1000) : "");
+    if (!clean.some(Boolean)) throw new Error("Write or select something to save.");
     await this.db.runAsync(
       "INSERT INTO tool_sessions VALUES (?,?,?,?,?,?,?)",
       id(),

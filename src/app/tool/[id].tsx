@@ -5,16 +5,15 @@ import {
   Button,
   Card,
   Copy,
-  ErrorMessage,
   Eyebrow,
-  Field,
   Heading,
   Screen,
 } from "../../components/app/ui";
 import { skillGuides } from "../../features/tools/guides";
 import { toolById } from "../../features/tools/catalog";
 import { useRepository } from "../../db/provider";
-import { useAction } from "../../lib/hooks";
+import { GuidedExercise } from "../../features/tools/GuidedExercise";
+import { stepsForTool } from "../../features/tools/exercises";
 export default function ToolDetail() {
   const { id, checkInId, guide } = useLocalSearchParams<{
     id: string;
@@ -25,10 +24,6 @@ export default function ToolDetail() {
   const artwork = skillGuides[id];
   const [showGuide, setShowGuide] = useState(guide === "1");
   const repository = useRepository();
-  const action = useAction();
-  const [started, setStarted] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [responses, setResponses] = useState(["", "", ""]);
   if (!tool)
     return (
       <Screen>
@@ -64,64 +59,13 @@ export default function ToolDetail() {
       <Card>
         <Copy>{tool.explanation}</Copy>
       </Card>
-      {saved ? (
-        <Card tinted>
-          <Heading small>Saved for you.</Heading>
-          <Copy>Your reflection is in My Days.</Copy>
-          <Button
-            secondary
-            label="Try again"
-            onPress={() => {
-              setSaved(false);
-              setStarted(false);
-              setResponses(["", "", ""]);
-            }}
-          />
-        </Card>
-      ) : (
-        tool.prompts && (
-          <>
-            {!started ? (
-              <Button label="Try it" onPress={() => setStarted(true)} />
-            ) : (
-              <>
-                <Copy muted>
-                  Short answers are enough. These stay on this device.
-                </Copy>
-                {tool.prompts.map((prompt, index) => (
-                  <Field
-                    key={prompt}
-                    label={`${index + 1}. ${prompt}`}
-                    multiline
-                    maxLength={1000}
-                    value={responses[index]}
-                    onChangeText={(text) =>
-                      setResponses((current) =>
-                        current.map((value, i) => (i === index ? text : value)),
-                      )
-                    }
-                  />
-                ))}
-                <ErrorMessage message={action.error} />
-                <Button
-                  label={action.busy ? "Saving…" : "Save completed reflection"}
-                  disabled={action.busy || responses.some((r) => !r.trim())}
-                  onPress={() =>
-                    action.run(async () => {
-                      await repository.saveSession(
-                        tool.id,
-                        checkInId ?? null,
-                        responses,
-                      );
-                      setSaved(true);
-                    })
-                  }
-                />
-              </>
-            )}
-          </>
-        )
-      )}
+      <GuidedExercise
+        key={tool.id}
+        steps={stepsForTool(tool)}
+        onSave={(responses) =>
+          repository.saveSession(tool.id, checkInId ?? null, responses)
+        }
+      />
     </Screen>
   );
 }

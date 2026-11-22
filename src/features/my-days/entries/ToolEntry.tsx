@@ -10,7 +10,9 @@ export function ToolEntry({ record }: { record: ToolSession }) {
     <>
       <Copy>{tool?.title ?? record.tool_id}</Copy>
       {responses ? (
-        responses.map((response, index) => <Copy key={index}>{response}</Copy>)
+        responses
+          .filter((response) => response.trim())
+          .map((response, index) => <Copy key={index}>{response}</Copy>)
       ) : (
         <Copy muted>The saved responses could not be displayed.</Copy>
       )}
